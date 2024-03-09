@@ -1,4 +1,5 @@
 <script lang="ts">
+	import AccountsCard from '$lib/components/app/accounts/accounts-card.svelte';
 	import NetworthChart from '$lib/components/app/networth/networth-chart.svelte';
 	import SpendingChart from '$lib/components/app/spending/spending-chart.svelte';
 	import Topbar from '$lib/components/layout/topbar.svelte';
@@ -15,6 +16,7 @@
 		<div class="grid gap-4 md:grid-cols-1 lg:grid-cols-2">
 			<NetworthChart data={data.networth} />
 			<SpendingChart data={data.spending} />
+			<AccountsCard data={data.accounts} />
 		</div>
 	</div>
 </div>
