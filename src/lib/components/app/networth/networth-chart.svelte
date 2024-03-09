@@ -1,25 +1,18 @@
-<script>
+<script lang="ts">
 	import ChartCard from '$lib/components/ui/chart/chart-card.svelte';
+	import type { NetworthData, NetworthEntry } from '$lib/types';
 
-	const data = [
-		{ id: 1, average: 400, today: 240 },
-		{ id: 2, average: 300, today: 139 },
-		{ id: 3, average: 200, today: 980 },
-		{ id: 4, average: 278, today: 390 },
-		{ id: 5, average: 189, today: 480 },
-		{ id: 6, average: 239, today: 380 },
-		{ id: 7, average: 349, today: 430 }
-	];
+	export let data: NetworthData;
 
-	const networth = 45231.89;
-	const delta = -20.1;
+	const x = (row: NetworthEntry) => row.date.getTime();
+	const y = [(row: NetworthEntry) => row.value];
 </script>
 
 <ChartCard
+	data={data.history}
 	title="Networth"
-	value={networth}
-	{delta}
-	{data}
-	x={(row) => row.id}
-	y={[(row) => row.today]}
+	value={data.current}
+	delta={data.monthDelta}
+	{x}
+	{y}
 />

@@ -16,7 +16,15 @@ export const monthNames = [
 	'November',
 	'December'
 ];
-export const tickFormat = (d: number) => monthNames[d - 1];
+
+export const monthlyTickFormat = (d: number) => {
+	const date = new Date(d);
+	const month = date.getMonth() + 1;
+	return monthNames[month];
+};
+
+export const dailyTickFormat = (d: number) =>
+	new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
 /**
  * If you want to set color for multiple lines at once, you'll have to define a colors array in your component and reference colors by index in the accessor function.
@@ -42,16 +50,16 @@ export function crosshairStrokeWidths<T>(_: T, i: number) {
 	return [2, 1][i];
 }
 
-export function tooltipTemplate(d) {
+export function tooltipTemplate(d: any) {
 	return `
 <div class="rounded-lg border bg-background p-2 shadow-sm">
   <div class="grid grid-cols-2 gap-2">
     <div class="flex flex-col">
       <span class="text-[0.70rem] uppercase text-muted-foreground">
-        ${tickFormat(d.id)}
+        ${d.date.toLocaleDateString()}
       </span>
       <span class="font-bold text-muted-foreground">
-        ${d.today}
+        $${d.value}
       </span>
     </div>
   </div>

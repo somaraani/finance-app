@@ -14,7 +14,7 @@
 		tooltipTemplate,
 		crosshairPointColors,
 		crosshairStrokeWidths,
-		tickFormat
+		dailyTickFormat
 	} from './helpers.js';
 
 	export let data: any[] = [];
@@ -38,7 +38,14 @@
 		strokeColor={scatterPointStrokeColors}
 		strokeWidth={crosshairStrokeWidths}
 	/>
-	<VisAxis type="x" {x} {tickFormat} gridLine={false} tickLine={undefined} domainLine={false} />
+	<VisAxis
+		type="x"
+		{x}
+		tickFormat={dailyTickFormat}
+		gridLine={false}
+		tickLine={undefined}
+		domainLine={false}
+	/>
 	<VisCrosshair template={tooltipTemplate} color={crosshairPointColors} />
 </VisXYContainer>
 

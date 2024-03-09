@@ -6,8 +6,8 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 
 	export let data: any[] = [];
-	export let x: (d: any) => number;
-	export let y: ((d: any) => number)[];
+	export let x: (d: any) => any;
+	export let y: ((d: any) => any)[];
 
 	export let title: string;
 	export let value: number;
