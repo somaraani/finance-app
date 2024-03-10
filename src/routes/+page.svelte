@@ -9,7 +9,7 @@
 
 <div class="hidden flex-col md:flex">
 	<div class="border-b">
-		<Topbar />
+		<Topbar user={data.user} />
 	</div>
 	<div class="flex-1 space-y-4 p-8 pt-6">
 		<h2 class="mb-6 text-3xl font-bold tracking-tight">Dashboard</h2>

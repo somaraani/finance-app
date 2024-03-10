@@ -5,8 +5,8 @@ export const schema = pgSchema('finance');
 export const users = schema.table('users', {
 	id: text('id').primaryKey(),
 	username: varchar('username', { length: 255 }).notNull(),
-	firstName: varchar('firstName', { length: 255 }).notNull(),
-	lastName: varchar('lastName', { length: 255 }).notNull(),
+	firstname: varchar('firstName', { length: 255 }).notNull(),
+	lastname: varchar('lastName', { length: 255 }).notNull(),
 	password: varchar('password', { length: 255 }).notNull()
 });
 

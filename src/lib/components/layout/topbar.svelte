@@ -1,10 +1,15 @@
 <script lang="ts">
-	import Button from '../ui/button/button.svelte';
-	import Sun from 'svelte-radix/Sun.svelte';
-	import Moon from 'svelte-radix/Moon.svelte';
-	import { toggleMode } from 'mode-watcher';
-	import Separator from '../ui/separator/separator.svelte';
+	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import DollarSign from 'lucide-svelte/icons/dollar-sign';
+	import UserIcon from 'lucide-svelte/icons/circle-user-round';
+	import { toggleMode } from 'mode-watcher';
+	import Moon from 'svelte-radix/Moon.svelte';
+	import Sun from 'svelte-radix/Sun.svelte';
+	import Button from '../ui/button/button.svelte';
+	import Separator from '../ui/separator/separator.svelte';
+	import type { User } from '$lib/types/users.types';
+
+	export let user: User;
 </script>
 
 <div class="flex h-16 w-full items-center px-4 py-3">
@@ -31,13 +36,31 @@
 		</a>
 	</div>
 
-	<Button on:click={toggleMode} class="ml-auto" variant="outline" size="icon">
-		<Sun
-			class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
-		/>
-		<Moon
-			class="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"
-		/>
-		<span class="sr-only">Toggle theme</span>
-	</Button>
+	<div class="ml-auto flex gap-2">
+		<DropdownMenu.Root>
+			<DropdownMenu.Trigger asChild let:builder>
+				<Button variant="outline" builders={[builder]}>
+					<UserIcon class="mr-2" />
+					{user.username}
+				</Button>
+			</DropdownMenu.Trigger>
+			<DropdownMenu.Content>
+				<DropdownMenu.Group>
+					<DropdownMenu.Label>{`${user.firstname} ${user.lastname}`}</DropdownMenu.Label>
+					<DropdownMenu.Separator />
+					<DropdownMenu.Item href="/signout">Log out</DropdownMenu.Item>
+				</DropdownMenu.Group>
+			</DropdownMenu.Content>
+		</DropdownMenu.Root>
+
+		<Button on:click={toggleMode} variant="outline" size="icon">
+			<Sun
+				class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
+			/>
+			<Moon
+				class="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"
+			/>
+			<span class="sr-only">Toggle theme</span>
+		</Button>
+	</div>
 </div>

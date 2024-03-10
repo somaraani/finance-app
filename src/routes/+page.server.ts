@@ -15,8 +15,8 @@ export const load: PageServerLoad = async (event) => {
 	const [user] = await db
 		.select({
 			username: users.username,
-			firstName: users.firstName,
-			lastName: users.lastName
+			firstname: users.firstname,
+			lastname: users.lastname
 		})
 		.from(users)
 		.where(eq(users.id, event.locals.user.id));
