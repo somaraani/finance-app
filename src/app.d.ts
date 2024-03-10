@@ -3,7 +3,7 @@
 declare global {
 	namespace App {
 		interface Locals {
-			user: import('lucia').User | null;
+			user: import('lucia').User;
 			session: import('lucia').Session | null;
 		}
 		// interface Error {}
