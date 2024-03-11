@@ -1,5 +1,10 @@
-import { PLAID_SECRET, PLAID_CLIENT_ID } from '$env/static/private';
+import { PLAID_CLIENT_ID, PLAID_SECRET } from '$env/static/private';
+import type { PlaidLinkMetadata } from '$lib/types';
+import { generateId } from 'lucia';
 import { Configuration, CountryCode, PlaidApi, PlaidEnvironments, Products } from 'plaid';
+import { accounts, instituations, userInstitutions } from '../../schemas/schema';
+import { db } from './db';
+import { eq } from 'drizzle-orm';
 
 const configuration = new Configuration({
 	basePath: PlaidEnvironments.sandbox,
@@ -29,17 +34,47 @@ export async function createLinkToken(userId: string) {
 	return result.data;
 }
 
-export async function linkUserItem(userId: string, publicToken: string, metadata: any) {
+export async function linkUserItem(
+	userId: string,
+	publicToken: string,
+	metadata: PlaidLinkMetadata
+) {
 	const result = await plaidClient.itemPublicTokenExchange({
-		public_token: publicToken,
-		client_id: PLAID_CLIENT_ID,
-		secret: PLAID_SECRET
+		public_token: publicToken
 	});
 
 	const { access_token, item_id } = result.data;
 
-	console.log('linkUserItem', userId, access_token, item_id);
+	// check if institution exists, if not add it
+	const [institution] = await db
+		.select()
+		.from(instituations)
+		.where(eq(instituations.id, metadata.institution.institution_id));
 
-	//TODO init accounts from metadta
-	console.log(metadata);
+	if (!institution) {
+		//TODO shouldd automatically dd all institutions
+		await db.insert(instituations).values({
+			id: metadata.institution.institution_id,
+			name: metadata.institution.name
+		});
+	}
+
+	await db.insert(userInstitutions).values({
+		accessToken: access_token,
+		institutionId: metadata.institution.institution_id,
+		itemId: item_id,
+		userId
+	});
+
+	await db.insert(accounts).values({
+		userId,
+		id: generateId(15),
+		institutionId: metadata.institution.institution_id,
+		name: metadata.account.name,
+		type: metadata.account.type,
+		subtype: metadata.account.subtype,
+		plaidAccountId: metadata.account.id
+	});
+
+	console.log(`user ${userId} linked to account ${metadata.institution.name}`);
 }

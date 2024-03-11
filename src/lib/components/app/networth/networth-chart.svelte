@@ -8,11 +8,13 @@
 	const y = [(row: NetworthEntry) => row.value];
 </script>
 
-<ChartCard
-	data={data.history}
-	title="Networth"
-	value={data.current}
-	delta={data.monthDelta}
-	{x}
-	{y}
-/>
+{#if data.history}
+	<ChartCard
+		data={data.history}
+		title="Networth"
+		value={data.current}
+		delta={data.monthDelta}
+		{x}
+		{y}
+	/>
+{/if}

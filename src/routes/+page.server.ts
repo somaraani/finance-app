@@ -1,13 +1,14 @@
-import { data as accounts } from '$lib/server/accounts';
+import { getUserAccountBlances } from '$lib/server/accounts';
 import { db } from '$lib/server/db';
-import { data as networth } from '$lib/server/networth';
-import { data as spending } from '$lib/server/spending';
+import { getNetworthData } from '$lib/server/networth';
+import { getSpendingTimeline } from '$lib/server/spending';
 import { fail, type Actions } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
 import { users } from '../schemas/schema';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async (event) => {
+	const id = event.locals.user.id;
 	const [user] = await db
 		.select({
 			username: users.username,
@@ -15,9 +16,14 @@ export const load: PageServerLoad = async (event) => {
 			lastname: users.lastname
 		})
 		.from(users)
-		.where(eq(users.id, event.locals.user.id));
+		.where(eq(users.id, id));
 
-	return { networth, spending, accounts, user };
+	return {
+		user,
+		networth: await getNetworthData(id),
+		spending: await getSpendingTimeline(id),
+		accounts: await getUserAccountBlances(id)
+	};
 };
 
 export const actions: Actions = {

@@ -23,4 +23,6 @@ for (let d = startDate; d <= endDate; d.setDate(d.getDate() + 1)) {
 	});
 }
 
-export { data };
+export function getSpendingTimeline(userId: string) {
+	return data;
+}

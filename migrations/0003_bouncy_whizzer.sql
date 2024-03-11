@@ -1,0 +1,1 @@
+ALTER TABLE "finance"."user_institutions" ADD COLUMN "item_id" text NOT NULL;

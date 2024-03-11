@@ -1,6 +1,6 @@
 import type { NetworthData } from '$lib/types';
 
-export const data: NetworthData = {
+const data: NetworthData = {
 	current: 45231.89,
 	monthDelta: 1234.56,
 	history: [
@@ -12,3 +12,7 @@ export const data: NetworthData = {
 		{ date: new Date(2021, 5, 1), value: 45231.89 }
 	]
 };
+
+export async function getNetworthData(userId: string) {
+	return data;
+}
