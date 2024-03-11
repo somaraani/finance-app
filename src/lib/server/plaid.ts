@@ -4,7 +4,7 @@ import { generateId } from 'lucia';
 import { Configuration, CountryCode, PlaidApi, PlaidEnvironments, Products } from 'plaid';
 import { accounts, instituations, userInstitutions } from '../../schemas/schema';
 import { db } from './db';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 
 const configuration = new Configuration({
 	basePath: PlaidEnvironments.sandbox,
@@ -34,6 +34,29 @@ export async function createLinkToken(userId: string) {
 	return result.data;
 }
 
+export async function unlinkItem(userId: string, institutionId: string) {
+	const [{ accessToken }] = await db
+		.select()
+		.from(userInstitutions)
+		.where(
+			and(eq(userInstitutions.userId, userId), eq(userInstitutions.institutionId, institutionId))
+		);
+
+	const result = await plaidClient.itemRemove({
+		access_token: accessToken
+	});
+
+	if (result.status === 200) {
+		await db
+			.delete(userInstitutions)
+			.where(
+				and(eq(userInstitutions.userId, userId), eq(userInstitutions.institutionId, institutionId))
+			);
+	}
+
+	return result.status === 200 ? true : false;
+}
+
 export async function linkUserItem(
 	userId: string,
 	publicToken: string,
@@ -52,7 +75,6 @@ export async function linkUserItem(
 		.where(eq(instituations.id, metadata.institution.institution_id));
 
 	if (!institution) {
-		//TODO shouldd automatically dd all institutions
 		await db.insert(instituations).values({
 			id: metadata.institution.institution_id,
 			name: metadata.institution.name
@@ -60,21 +82,24 @@ export async function linkUserItem(
 	}
 
 	await db.insert(userInstitutions).values({
+		id: generateId(15),
 		accessToken: access_token,
 		institutionId: metadata.institution.institution_id,
 		itemId: item_id,
 		userId
 	});
 
-	await db.insert(accounts).values({
-		userId,
-		id: generateId(15),
-		institutionId: metadata.institution.institution_id,
-		name: metadata.account.name,
-		type: metadata.account.type,
-		subtype: metadata.account.subtype,
-		plaidAccountId: metadata.account.id
-	});
+	await db.insert(accounts).values(
+		metadata.accounts.map((account) => ({
+			userId,
+			id: generateId(15),
+			institutionId: metadata.institution.institution_id,
+			name: account.name,
+			type: account.type,
+			subtype: account.subtype,
+			plaidAccountId: account.id
+		}))
+	);
 
 	console.log(`user ${userId} linked to account ${metadata.institution.name}`);
 }

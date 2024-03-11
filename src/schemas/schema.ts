@@ -22,10 +22,13 @@ export const sessions = schema.table('sessions', {
 });
 
 export const userInstitutions = schema.table('user_institutions', {
+	id: text('id').primaryKey(),
 	userId: text('user_id')
 		.notNull()
 		.references(() => users.id),
-	institutionId: text('institution_id').notNull(),
+	institutionId: text('institution_id')
+		.notNull()
+		.references(() => instituations.id),
 	accessToken: text('access_token').notNull(),
 	itemId: text('item_id').notNull()
 });

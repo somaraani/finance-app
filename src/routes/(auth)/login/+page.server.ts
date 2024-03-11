@@ -1,7 +1,7 @@
 import { db } from '$lib/server/db';
 import { redirect, type Actions, fail } from '@sveltejs/kit';
 import { Argon2id } from 'oslo/password';
-import { users } from '../../schemas/schema';
+import { users } from '../../../schemas/schema';
 import { eq } from 'drizzle-orm';
 import { lucia } from '$lib/server/auth';
 

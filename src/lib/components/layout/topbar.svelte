@@ -18,21 +18,19 @@
 	<Separator orientation="vertical" class="m-5" />
 
 	<div class="space-x-4 lg:space-x-6">
-		<a href="/dashboard" class="text-sm font-medium transition-colors hover:text-primary">
-			Dashboard
-		</a>
+		<a href="/" class="text-sm font-medium transition-colors hover:text-primary"> Dashboard </a>
 
 		<a
-			href="/examples/dashboard"
+			href="/transactions"
 			class="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
 		>
 			Transactions
 		</a>
 		<a
-			href="/examples/dashboard"
+			href="/accounts"
 			class="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
 		>
-			Settings
+			Accounts
 		</a>
 	</div>
 

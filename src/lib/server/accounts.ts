@@ -1,6 +1,6 @@
 import type { Account } from '$lib/types';
 import { eq } from 'drizzle-orm';
-import { accounts, userInstitutions } from '../../schemas/schema';
+import { accounts, instituations, userInstitutions } from '../../schemas/schema';
 import { db } from './db';
 import { plaidClient } from './plaid';
 
@@ -10,30 +10,32 @@ export async function getUserAccounts(userId: string) {
 
 export async function getUserAccountBlances(userId: string) {
 	const balances: Account[] = [];
-	const instituations = await db
+
+	const query = await db
 		.select()
 		.from(userInstitutions)
-		.where(eq(userInstitutions.userId, userId));
+		.where(eq(userInstitutions.userId, userId))
+		.leftJoin(instituations, eq(instituations.id, userInstitutions.institutionId));
 
-	for (const institute of instituations) {
+	for (const institution of query) {
 		const balancesResponse = await plaidClient.accountsBalanceGet({
-			access_token: institute.accessToken
+			access_token: institution.user_institutions.accessToken
 		});
 
 		const accounts = balancesResponse.data.accounts;
 
-		accounts.forEach(async (account) => {
+		accounts.forEach((account) => {
 			balances.push({
 				name: account.name,
 				id: account.account_id,
 				balance: account.balances.current,
 				type: account.type,
-				subtype: account.subtype
+				subtype: account.subtype,
+				institutionName: institution.institutions?.name,
+				lastUpdated: new Date()
 			});
 		});
 	}
-
-	console.log(balances);
 
 	return balances;
 }

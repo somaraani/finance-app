@@ -30,9 +30,17 @@
 					{:else}
 						<ChequeingIcon />
 					{/if}
-					{account.name}
+					<div>
+						<p class="font-medium text-muted-foreground">
+							{account.institutionName}
+						</p>
+						<p class="text-md font-semibold">{account.name}</p>
+					</div>
 				</div>
-				<div class="ml-auto">{account.balance ? formatBalance(account.balance) : '-'}</div>
+				<div class="ml-auto text-right">
+					<p>{account.balance ? formatBalance(account.balance) : '-'}</p>
+					<p class="text-xs text-muted-foreground">Upated 3 seconds ago</p>
+				</div>
 			</div>
 		{/each}
 	</Card.Content>

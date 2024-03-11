@@ -5,43 +5,8 @@
     {
       "idx": 0,
       "version": "5",
-      "when": 1710100113982,
-      "tag": "0000_messy_valeria_richards",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "5",
-      "when": 1710122637309,
-      "tag": "0001_sudden_ultron",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "5",
-      "when": 1710124354516,
-      "tag": "0002_medical_echo",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "5",
-      "when": 1710124795154,
-      "tag": "0003_bouncy_whizzer",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "5",
-      "when": 1710125017965,
-      "tag": "0004_nasty_darkhawk",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "5",
-      "when": 1710127171207,
-      "tag": "0005_blushing_namor",
+      "when": 1710188176151,
+      "tag": "0000_lyrical_franklin_richards",
       "breakpoints": true
     }
   ]

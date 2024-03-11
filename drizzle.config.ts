@@ -5,7 +5,7 @@ export default {
 	out: './migrations',
 	driver: 'pg',
 	dbCredentials: {
-		uri: process.env.DATABASE_URL
+		connectionString: process.env.DATABASE_URL
 	},
 	verbose: true,
 	strict: true
