@@ -1,5 +1,5 @@
 import type { UserInstitute } from '$lib/types/institutions.types';
-import { getUserAccountBlances } from './accounts';
+import { getUserAccountBalances } from './accounts';
 
 /**
  * Returns a list of institutions and their accounts for a user.
@@ -8,7 +8,7 @@ import { getUserAccountBlances } from './accounts';
  * @returns user institutions
  */
 export async function getUserInstitutions(userId: number): Promise<UserInstitute[]> {
-	const userAccounts = await getUserAccountBlances(userId);
+	const userAccounts = await getUserAccountBalances(userId);
 	const institutionMap: { [key: string]: UserInstitute } = {};
 
 	userAccounts.forEach((account) => {

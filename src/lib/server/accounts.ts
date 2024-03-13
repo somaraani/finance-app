@@ -2,7 +2,8 @@ import { desc, eq, getTableColumns } from 'drizzle-orm';
 import { accounts, balances, instituations, userInstitutions } from '../../schemas/schema';
 import { db } from './db';
 import { plaidClient } from './plaid';
-import type { Account } from '$lib/types';
+import type { AccountBalance, AccountMedata } from '$lib/types';
+import type { AccountSubtype, AccountType } from 'plaid';
 
 export async function getUserAccounts(userId: number) {
 	return db
@@ -23,7 +24,39 @@ async function getUserInstitutions(userId: number) {
 		.leftJoin(instituations, eq(instituations.id, userInstitutions.institutionId));
 }
 
-export async function updateAccountBalances(userId: number) {
+/**
+ * Returns an object mapping the plaid account ID to our internal account ID
+ */
+export async function getPlaidAccountMap(userId: number) {
+	const dbAccounts = await db
+		.select({
+			...getTableColumns(accounts),
+			institutionName: instituations.name
+		})
+		.from(accounts)
+		.where(eq(accounts.userId, userId))
+		.innerJoin(instituations, eq(instituations.id, accounts.institutionId));
+
+	const accountIdMap: { [plaidId: string]: AccountMedata } = {};
+	dbAccounts.forEach((account) => {
+		accountIdMap[account.plaidAccountId] = {
+			id: account.id,
+			institutionId: account.institutionId,
+			name: account.name,
+			type: account.type as AccountType,
+			subtype: account.subtype as AccountSubtype,
+			institutionName: account.institutionName
+		};
+	});
+	return accountIdMap;
+}
+
+/**
+ * Updates the account balances for a user.
+ * Use {@link getUserAccountBalances} to get most recent balances
+ * @returns if any of the requests to plaid failed
+ */
+export async function syncAccountBalances(userId: number) {
 	const query = await getUserInstitutions(userId);
 	let failures = false;
 
@@ -41,15 +74,11 @@ export async function updateAccountBalances(userId: number) {
 		const accountsData = balancesResponse.data.accounts;
 
 		// need to get internal account id that maps to the plaid account id
-		const dbAccounts = await db.select().from(accounts).where(eq(accounts.userId, userId));
-		const accountIdMap = new Map<string, number>();
-		dbAccounts.forEach((account) => {
-			accountIdMap.set(account.plaidAccountId, account.id);
-		});
+		const accountIdMap = await getPlaidAccountMap(userId);
 
 		await Promise.all(
 			accountsData.map(async (account) => {
-				const accountId = accountIdMap.get(account.account_id);
+				const accountId = accountIdMap[account.account_id].id;
 				if (!accountId || !account.balances.current || !account.balances.iso_currency_code) return;
 
 				await db.insert(balances).values({
@@ -66,7 +95,11 @@ export async function updateAccountBalances(userId: number) {
 	return { failures };
 }
 
-export async function getUserAccountBlances(userId: number): Promise<Account[]> {
+/**
+ * Returns the account balances for a user as stored in the database.
+ * Use {@link syncAccountBalances} to update balances
+ */
+export async function getUserAccountBalances(userId: number): Promise<AccountBalance[]> {
 	const result = await db
 		.selectDistinctOn([accounts.id], {
 			name: accounts.name,
@@ -84,5 +117,5 @@ export async function getUserAccountBlances(userId: number): Promise<Account[]> 
 		.innerJoin(instituations, eq(instituations.id, accounts.institutionId))
 		.orderBy(accounts.id, desc(balances.timestamp));
 
-	return result as Account[];
+	return result as AccountBalance[];
 }

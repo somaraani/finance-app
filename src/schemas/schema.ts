@@ -1,4 +1,5 @@
 import {
+	boolean,
 	doublePrecision,
 	integer,
 	pgSchema,
@@ -39,7 +40,7 @@ export const userInstitutions = schema.table('user_institutions', {
 	institutionId: integer('institution_id')
 		.notNull()
 		.references(() => instituations.id),
-	accessToken: text('access_token').notNull(),
+	accessToken: text('access_token').notNull().unique(),
 	itemId: text('item_id').notNull()
 });
 
@@ -63,7 +64,7 @@ export const accounts = schema.table('accounts', {
 	name: text('name').notNull(),
 	type: text('type').notNull(),
 	subtype: text('subtype').notNull(),
-	plaidAccountId: text('account_id').notNull().unique(),
+	plaidAccountId: text('account_id').unique(),
 	plaidPersistantAccountId: text('persistant_account_id').unique()
 });
 
@@ -82,4 +83,59 @@ export const balances = schema.table('balances', {
 	balance: doublePrecision('balance').notNull(),
 	currencyCode: text('currency_code').notNull(),
 	timestamp: timestamp('timestamp', { withTimezone: true, mode: 'date' }).notNull()
+});
+
+export const categories = schema.table('categories', {
+	id: serial('id').primaryKey(),
+	plaidCategory: text('plaid_category').unique(),
+	name: text('name').notNull().unique(),
+	description: text('description')
+});
+
+export const subcategories = schema.table('subcategories', {
+	id: serial('id').primaryKey(),
+	plaidCategory: text('plaid_category').unique(),
+	name: text('name').notNull(),
+	parent: integer('parent')
+		.notNull()
+		.references(() => categories.id),
+	description: text('description').notNull()
+});
+
+export const transactions = schema.table('transactions', {
+	id: serial('id').primaryKey(),
+	name: text('name').notNull(),
+	plaidId: text('plaid_id').unique(),
+	userId: integer('user_id')
+		.notNull()
+		.references(() => users.id, {
+			onDelete: 'cascade'
+		}),
+	accountId: integer('account_id')
+		.notNull()
+		.references(() => accounts.id, {
+			onDelete: 'cascade'
+		}),
+	amount: doublePrecision('amount').notNull(),
+	currencyCode: text('currency_code'),
+	timestamp: timestamp('timestamp', { withTimezone: true, mode: 'date' }).notNull(),
+	category: integer('category').references(() => categories.id),
+	subcategory: integer('subcategory').references(() => subcategories.id),
+	pending: boolean('boolean'),
+	channel: text('channel').notNull(),
+	iconUrl: text('icon_url')
+});
+
+export const plaidCursors = schema.table('plaid_cursors', {
+	userId: integer('user_id')
+		.notNull()
+		.references(() => users.id, {
+			onDelete: 'cascade'
+		}),
+	userInstitutions: integer('user_institution')
+		.notNull()
+		.references(() => userInstitutions.id, {
+			onDelete: 'cascade'
+		}),
+	nextCursor: text('next_cursor')
 });

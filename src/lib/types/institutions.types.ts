@@ -1,7 +1,7 @@
-import type { Account } from './accounts.types';
+import type { AccountBalance } from './accounts.types';
 
 export type UserInstitute = {
 	id: number;
 	name: string;
-	accounts: Account[];
+	accounts: AccountBalance[];
 };

@@ -1,16 +1,9 @@
 // src/hooks.server.ts
 import { lucia } from '$lib/server/auth';
+import { db } from '$lib/server/db';
 import { redirect, type Handle } from '@sveltejs/kit';
-import { db, migrateDb } from '$lib/server/db';
-import { building } from '$app/environment';
-import { users } from './schemas/schema';
 import { eq } from 'drizzle-orm';
-
-// Runs on app startup
-if (!building) {
-	// Run Migration when server starts
-	migrateDb();
-}
+import { users } from './schemas/schema';
 
 const unProtectedRoutes = ['/signup', '/login'];
 

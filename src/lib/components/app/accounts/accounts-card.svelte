@@ -1,11 +1,11 @@
 <script lang="ts">
 	import * as Card from '$lib/components/ui/card';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
-	import type { Account } from '$lib/types';
+	import type { AccountBalance } from '$lib/types';
 	import { getRelativeTime } from '$lib/util';
 	import AccountsIcon from './accounts-icon.svelte';
 
-	export let data: Account[];
+	export let data: AccountBalance[];
 
 	function formatBalance(balance: number): string {
 		return balance.toLocaleString('en-US', {

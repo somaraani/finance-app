@@ -1,4 +1,4 @@
-import { getUserAccountBlances } from '$lib/server/accounts';
+import { getUserAccountBalances } from '$lib/server/accounts';
 import { getNetworthData } from '$lib/server/networth';
 import { getSpendingTimeline } from '$lib/server/spending';
 import { fail, type Actions } from '@sveltejs/kit';
@@ -13,7 +13,7 @@ export const load: PageServerLoad = async (event) => {
 	return {
 		networth: await getNetworthData(id),
 		spending: await getSpendingTimeline(id),
-		accounts: await getUserAccountBlances(id)
+		accounts: await getUserAccountBalances(id)
 	};
 };
 

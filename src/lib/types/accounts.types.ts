@@ -1,12 +1,15 @@
 import type { AccountSubtype, AccountType } from 'plaid';
 
-export type Account = {
-	name: string;
+export type AccountMedata = {
 	id: number;
-	balance: number | null;
-	lastUpdated: Date | null;
+	name: string;
 	type: AccountType;
 	subtype: AccountSubtype | null;
-	institutionName: string;
 	institutionId: number;
+	institutionName: string;
+};
+
+export type AccountBalance = AccountMedata & {
+	balance: number | null;
+	lastUpdated: Date | null;
 };

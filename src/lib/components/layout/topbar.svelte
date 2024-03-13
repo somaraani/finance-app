@@ -37,7 +37,7 @@
 
 <div class="flex h-16 w-full items-center px-4 py-3">
 	<DollarSign class="text-primary" />
-	<h1 class="font-semibold">Finance App</h1>
+	<h1 class="text-lg font-semibold">finaance</h1>
 	<Separator orientation="vertical" class="m-5" />
 
 	<div class="space-x-4 lg:space-x-6">
