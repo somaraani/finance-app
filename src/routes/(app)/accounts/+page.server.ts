@@ -10,11 +10,9 @@ export const load: PageServerLoad = async (event) => {
 export const actions: Actions = {
 	unlinkItem: async (event) => {
 		const request = await event.request.json();
-		const result = await unlinkItem(event.locals.user.id, request.institutionId);
-		if (result) {
-			return { success: true };
-		} else {
-			return { success: false };
-		}
+		return unlinkItem(event.locals.user.id, request.institutionId).catch((e) => {
+			console.error(e);
+			return { success: false, error: e.message };
+		});
 	}
 };

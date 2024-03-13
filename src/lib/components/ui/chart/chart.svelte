@@ -46,6 +46,7 @@
 		tickLine={undefined}
 		domainLine={false}
 	/>
+	<VisAxis type="y" {y} gridLine={false} tickLine={undefined} domainLine={false} />
 	<VisCrosshair template={tooltipTemplate} color={crosshairPointColors} />
 </VisXYContainer>
 

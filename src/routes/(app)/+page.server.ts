@@ -6,6 +6,7 @@ import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async (event) => {
 	const id = event.locals.user.id;
+
 	return {
 		networth: await getNetworthData(id),
 		spending: await getSpendingTimeline(id),

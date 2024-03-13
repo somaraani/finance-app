@@ -1,7 +1,8 @@
 export type NetworthData = {
-	history: NetworthEntry[];
+	history: Map<number, number>;
 	current: number;
-	monthDelta: number;
+	delta: number;
+	deltaSince: Date;
 };
 
 export type NetworthEntry = {

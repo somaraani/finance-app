@@ -4,16 +4,16 @@
 
 	export let data: NetworthData;
 
-	const x = (row: NetworthEntry) => row.date.getTime();
-	const y = [(row: NetworthEntry) => row.value];
+	const x = (row: number[]) => row[0];
+	const y = [(row: number[]) => row[1]];
 </script>
 
 {#if data.history}
 	<ChartCard
-		data={data.history}
+		data={[...data.history.entries()]}
 		title="Networth"
 		value={data.current}
-		delta={data.monthDelta}
+		delta={data.delta}
 		{x}
 		{y}
 	/>

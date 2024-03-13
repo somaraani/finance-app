@@ -1,8 +1,10 @@
 // src/hooks.server.ts
 import { lucia } from '$lib/server/auth';
 import { redirect, type Handle } from '@sveltejs/kit';
-import { migrateDb } from '$lib/server/db';
+import { db, migrateDb } from '$lib/server/db';
 import { building } from '$app/environment';
+import { users } from './schemas/schema';
+import { eq } from 'drizzle-orm';
 
 // Runs on app startup
 if (!building) {
@@ -41,7 +43,23 @@ export const handle: Handle = async ({ event, resolve }) => {
 			...sessionCookie.attributes
 		});
 	}
-	event.locals.user = user!;
+
+	//TODO , what is this situation and how to handle
+	if (!user) {
+		redirect(303, '/login');
+	}
+
+	const [dbUser] = await db
+		.select({
+			id: users.id,
+			username: users.username,
+			firstname: users.firstname,
+			lastname: users.lastname
+		})
+		.from(users)
+		.where(eq(users.id, user.id));
+
+	event.locals.user = dbUser;
 	event.locals.session = session;
 	return resolve(event);
 };

@@ -2,6 +2,7 @@
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import DollarSign from 'lucide-svelte/icons/dollar-sign';
 	import UserIcon from 'lucide-svelte/icons/circle-user-round';
+	import RefreshIcon from 'lucide-svelte/icons/refresh-cw';
 	import { toggleMode } from 'mode-watcher';
 	import Moon from 'svelte-radix/Moon.svelte';
 	import Sun from 'svelte-radix/Sun.svelte';
@@ -35,10 +36,12 @@
 	</div>
 
 	<div class="ml-auto flex gap-2">
+		<Button variant="outline"><RefreshIcon />Refresh Data</Button>
+
 		<DropdownMenu.Root>
 			<DropdownMenu.Trigger asChild let:builder>
 				<Button variant="outline" builders={[builder]}>
-					<UserIcon class="mr-2" />
+					<UserIcon />
 					{user.username}
 				</Button>
 			</DropdownMenu.Trigger>

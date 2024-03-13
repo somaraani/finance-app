@@ -56,10 +56,10 @@ export function tooltipTemplate(d: any) {
   <div class="grid grid-cols-2 gap-2">
     <div class="flex flex-col">
       <span class="text-[0.70rem] uppercase text-muted-foreground">
-        ${d.date.toLocaleDateString()}
+        ${new Date(d[0]).toLocaleDateString()}
       </span>
       <span class="font-bold text-muted-foreground">
-        $${d.value}
+        $${d[1]}
       </span>
     </div>
   </div>
