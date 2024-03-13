@@ -3,7 +3,6 @@ import { accounts, balances, instituations, userInstitutions } from '../../schem
 import { db } from './db';
 import { plaidClient } from './plaid';
 import type { Account } from '$lib/types';
-import type { AccountSubtype, AccountType } from 'plaid';
 
 export async function getUserAccounts(userId: number) {
 	return db
@@ -26,11 +25,18 @@ async function getUserInstitutions(userId: number) {
 
 export async function updateAccountBalances(userId: number) {
 	const query = await getUserInstitutions(userId);
+	let failures = false;
 
 	for (const institution of query) {
 		const balancesResponse = await plaidClient.accountsBalanceGet({
 			access_token: institution.user_institutions.accessToken
 		});
+
+		// if the request fails, nothing to ad
+		if (balancesResponse.status !== 200) {
+			failures = true;
+			continue;
+		}
 
 		const accountsData = balancesResponse.data.accounts;
 
@@ -56,42 +62,27 @@ export async function updateAccountBalances(userId: number) {
 			})
 		);
 	}
+
+	return { failures };
 }
 
-export async function getUserAccountBlances(userId: number) {
-	// TODO change this logic into an SQL query
-	const userAccounts = await getUserAccounts(userId);
-	return Promise.all(
-		userAccounts.map(async (account) => {
-			const [balance] = await db
-				.select()
-				.from(balances)
-				.where(eq(balances.accountId, account.id))
-				.orderBy(desc(balances.timestamp))
-				.limit(1);
-
-			return {
-				name: account.name,
-				id: account.id,
-				balance: balance.balance,
-				lastUpdated: balance.timestamp,
-				type: account.type as AccountType,
-				subtype: account.subtype as AccountSubtype,
-				institutionName: account.insitutionName,
-				institutionId: account.institutionId
-			} satisfies Account;
+export async function getUserAccountBlances(userId: number): Promise<Account[]> {
+	const result = await db
+		.selectDistinctOn([accounts.id], {
+			name: accounts.name,
+			id: accounts.id,
+			balance: balances.balance,
+			lastUpdated: balances.timestamp,
+			type: accounts.type,
+			subtype: accounts.subtype,
+			institutionName: instituations.name,
+			institutionId: instituations.id
 		})
-	);
+		.from(accounts)
+		.where(eq(balances.userId, userId))
+		.innerJoin(balances, eq(balances.accountId, accounts.id))
+		.innerJoin(instituations, eq(instituations.id, accounts.institutionId))
+		.orderBy(accounts.id, desc(balances.timestamp));
 
-	// return db
-	// 	.select({
-	// 		...getTableColumns(balances),
-	// 		...getTableColumns(accounts),
-	// 		timestamp: max(balances.timestamp)
-	// 	})
-	// 	.from(balances)
-	// 	.where(eq(balances.userId, userId))
-	// 	.groupBy(balances.accountId)
-	// 	.innerJoin(accounts, eq(accounts.id, balances.accountId))
-	// 	.innerJoin(instituations, eq(accounts.institutionId, instituations.id));
+	return result as Account[];
 }

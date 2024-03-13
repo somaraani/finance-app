@@ -11,7 +11,7 @@
 
 	export let data;
 
-	async function unlink(institutionId: string) {
+	async function unlink(institutionId: number) {
 		const result = await pageAction<ActionData>('?/unlinkItem', { institutionId });
 		if (!result?.success) {
 			toast.error('Failed to unlink account', {
@@ -42,7 +42,6 @@
 							Last upated {getRelativeTime(institute.accounts[0].lastUpdated)}
 						</p>
 						<form>
-							<Button on:click={() => unlink(institute.id)} variant="ghost">Refresh</Button>
 							<UnlinkDialog onSubmit={() => unlink(institute.id)} {institute} />
 						</form>
 					</div>

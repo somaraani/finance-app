@@ -63,7 +63,7 @@
 			{:else if !success}
 				You exited Plaid Link without connecting an account. Would you like to try again?
 			{:else}
-				<div class="flex">
+				<div class="flex gap-3">
 					<Spinner />
 					Linking accounts, please wait ...
 				</div>

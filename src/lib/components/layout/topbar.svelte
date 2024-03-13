@@ -3,14 +3,36 @@
 	import DollarSign from 'lucide-svelte/icons/dollar-sign';
 	import UserIcon from 'lucide-svelte/icons/circle-user-round';
 	import RefreshIcon from 'lucide-svelte/icons/refresh-cw';
+	import SuccessIcon from 'lucide-svelte/icons/check';
+	import ErrorIcon from 'lucide-svelte/icons/circle-alert';
 	import { toggleMode } from 'mode-watcher';
 	import Moon from 'svelte-radix/Moon.svelte';
 	import Sun from 'svelte-radix/Sun.svelte';
 	import Button from '../ui/button/button.svelte';
 	import Separator from '../ui/separator/separator.svelte';
 	import type { User } from '$lib/types/users.types';
+	import { invalidate } from '$app/navigation';
 
 	export let user: User;
+
+	let refreshState: 'idle' | 'loading' | 'success' | 'error' = 'idle';
+
+	async function refreshData() {
+		refreshState = 'loading';
+		const response = await fetch('/api/refresh', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		});
+
+		if (response.ok) {
+			await invalidate('data:now');
+			refreshState = 'success';
+		} else {
+			refreshState = 'error';
+		}
+	}
 </script>
 
 <div class="flex h-16 w-full items-center px-4 py-3">
@@ -36,7 +58,21 @@
 	</div>
 
 	<div class="ml-auto flex gap-2">
-		<Button variant="outline"><RefreshIcon />Refresh Data</Button>
+		<Button variant="outline" on:click={refreshData}>
+			{#if refreshState === 'idle'}
+				<RefreshIcon />
+				Refresh data
+			{:else if refreshState === 'loading'}
+				<RefreshIcon class="animate-spin" />
+				Refreshing...
+			{:else if refreshState === 'success'}
+				<SuccessIcon class="text-green-500" />
+				Refreshed data
+			{:else if refreshState === 'error'}
+				<ErrorIcon class="text-red-500" />
+				Error refreshing
+			{/if}
+		</Button>
 
 		<DropdownMenu.Root>
 			<DropdownMenu.Trigger asChild let:builder>

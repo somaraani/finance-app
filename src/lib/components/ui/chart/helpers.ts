@@ -1,3 +1,8 @@
+export type ChartData = {
+	date: Date;
+	value: unknown;
+};
+
 export function color(opacity: string = '1') {
 	return () => `hsl(var(--primary) / ${opacity})`;
 }
@@ -50,16 +55,16 @@ export function crosshairStrokeWidths<T>(_: T, i: number) {
 	return [2, 1][i];
 }
 
-export function tooltipTemplate(d: any) {
+export function tooltipTemplate(d: ChartData) {
 	return `
 <div class="rounded-lg border bg-background p-2 shadow-sm">
   <div class="grid grid-cols-2 gap-2">
     <div class="flex flex-col">
       <span class="text-[0.70rem] uppercase text-muted-foreground">
-        ${new Date(d[0]).toLocaleDateString()}
+        ${d.date.toLocaleDateString()}
       </span>
       <span class="font-bold text-muted-foreground">
-        $${d[1]}
+        $${d.value}
       </span>
     </div>
   </div>

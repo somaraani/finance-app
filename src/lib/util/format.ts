@@ -12,12 +12,8 @@ export function getRelativeTime(date: Date | null): string {
 		return minutes === 1 ? '1 minute ago' : `${minutes} minutes ago`;
 	} else if (hours < 24) {
 		return hours === 1 ? '1 hour ago' : `${hours} hours ago`;
-	} else if (days < 7) {
-		return date.toLocaleDateString(undefined, {
-			weekday: 'long',
-			hour: '2-digit',
-			minute: '2-digit'
-		});
+	} else if (days < 30) {
+		return days === 1 ? '1 day ago' : `${days} days ago`;
 	} else if (now.getFullYear() === date.getFullYear()) {
 		return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 	} else {

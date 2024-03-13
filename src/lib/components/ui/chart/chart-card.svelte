@@ -4,14 +4,11 @@
 	import { default as Chart } from './chart.svelte';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
+	import type { ChartData } from '$lib/types';
 
-	export let data: any[] = [];
-	export let x: (d: any) => any;
+	export let data: ChartData[];
 	export let y: ((d: any) => any)[];
-
 	export let title: string;
-	export let value: number;
-	export let delta: number;
 
 	const ranges = {
 		month: '1 Month',
@@ -20,10 +17,14 @@
 		all: 'All time'
 	};
 
-	let range: keyof typeof ranges = 'halfYear';
+	let range: keyof typeof ranges = 'month';
 
-	$: formattedValue = value.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
-	$: deltaText = `${delta > 0 ? '+' : ''}${delta}% from last month`;
+	$: current = data.length ? data[data.length - 1].value : 0;
+	$: formattedValue = current.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+	$: delta = data.length ? (data[data.length - 1].value - data[0].value) / data[0].value : 0;
+	$: deltaText = `${delta > 0 ? '+' : ''}${delta.toLocaleString('en-US', { style: 'percent', maximumFractionDigits: 0 })} in the last month`;
+
+	const x = (d: ChartData) => d.date.getTime();
 </script>
 
 <Card.Root class="pb-6">

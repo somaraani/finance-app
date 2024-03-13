@@ -4,7 +4,7 @@ import { balances } from '../../schemas/schema';
 import { getUserAccounts } from './accounts';
 import { db } from './db';
 
-export async function getNetworthData(userId: number): Promise<NetworthData> {
+export async function getNetworthData(userId: number): Promise<NetworthData | undefined> {
 	const userAccounts = await getUserAccounts(userId);
 	const networths = new Map<number, number>();
 
@@ -32,15 +32,16 @@ export async function getNetworthData(userId: number): Promise<NetworthData> {
 		})
 	);
 
+	if (networths.size === 0) {
+		return;
+	}
+
 	// Sort the networths by date and get the most recent and oldest
-	const sortedNetworths = [...networths.entries()].sort((a, b) => a[0] - b[0]);
-	const current = sortedNetworths.length > 0 ? sortedNetworths[0][1] : 0;
-	const oldest = sortedNetworths.length > 0 ? sortedNetworths[sortedNetworths.length - 1][1] : 0;
+	const history = [...networths.entries()]
+		.sort((a, b) => a[0] - b[0])
+		.map(([date, value]) => ({ date: new Date(date), value }));
 
 	return {
-		history: new Map(sortedNetworths),
-		current: current ?? 0,
-		delta: current ? current - oldest : 0,
-		deltaSince: new Date(sortedNetworths[sortedNetworths.length - 1][0])
+		history
 	};
 }
