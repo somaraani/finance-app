@@ -4,7 +4,7 @@ import { Configuration, CountryCode, PlaidApi, PlaidEnvironments, Products } fro
 import { accounts, instituations, userInstitutions } from '../../schemas/schema';
 import { db } from './db';
 import { and, eq } from 'drizzle-orm';
-import { updateAccountBalances } from './accounts';
+import { syncAccountBalances } from './accounts';
 
 const configuration = new Configuration({
 	basePath: PlaidEnvironments.sandbox,
@@ -118,8 +118,6 @@ export async function linkUserItem(
 		}))
 	);
 
-	await updateAccountBalances(userId);
-
-	console.log(`user ${userId} linked to account ${metadata.institution.name}`);
+	await syncAccountBalances(userId);
 	return { success: true };
 }

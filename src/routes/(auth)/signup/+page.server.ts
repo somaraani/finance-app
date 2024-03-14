@@ -4,6 +4,7 @@ import { Argon2id } from 'oslo/password';
 import { users } from '../../../schemas/schema';
 import { eq } from 'drizzle-orm';
 import { lucia } from '$lib/server/auth';
+import { logger } from '$lib/util/logs';
 
 export const actions = {
 	default: async ({ request, cookies }) => {
@@ -34,7 +35,7 @@ export const actions = {
 			})
 			.returning();
 
-		console.log('Created new user', username, firstname, lastname);
+		logger.info('Created new user', username, firstname, lastname);
 
 		const session = await lucia.createSession(user.id, {});
 		const sessionCookie = lucia.createSessionCookie(session.id);

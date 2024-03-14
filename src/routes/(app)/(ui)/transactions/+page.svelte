@@ -1,61 +1,17 @@
 <script lang="ts">
+	import { createTransactionsTable } from '$lib/components/app/transactions/table/createTransactionsTable.js';
 	import * as Table from '$lib/components/ui/table';
-	import { createRender, createTable, Render, Subscribe } from 'svelte-headless-table';
-	import { readable } from 'svelte/store';
-	import TransactionName from '$lib/components/app/transactions/table/transaction-name.svelte';
-	import TransactionCategory from '$lib/components/app/transactions/table/transaction-category.svelte';
+	import { Render, Subscribe } from 'svelte-headless-table';
+	import { writable } from 'svelte/store';
 
 	export let data;
 
-	const table = createTable(readable(data.transactions));
-	const columns = table.createColumns([
-		table.column({
-			id: 'name',
-			accessor: (data) => ({
-				name: data.name,
-				icon: data.iconUrl
-			}),
-			cell: ({ value }) =>
-				createRender(TransactionName, {
-					data: value
-				}),
-			header: 'Name'
-		}),
-		table.column({
-			id: 'date',
-			header: 'Date',
-			accessor: 'timestamp',
-			cell: ({ value }) => {
-				return value.toLocaleDateString();
-			}
-		}),
-		table.column({
-			accessor: (data) => data,
-			id: 'category',
-			header: 'Category',
-			cell: ({ value }) =>
-				createRender(TransactionCategory, {
-					category: value.categoryName,
-					subcategory: value.subcategoryName
-				})
-		}),
-		table.column({
-			accessor: 'accountName',
-			header: 'Account'
-		}),
-		table.column({
-			accessor: 'amount',
-			header: 'Amount',
-			cell: ({ value }) => {
-				const formatted = new Intl.NumberFormat('en-US', {
-					style: 'currency',
-					currency: 'USD'
-				}).format(value);
-				return formatted;
-			}
-		})
-	]);
-	const { headerRows, pageRows, tableAttrs, tableBodyAttrs } = table.createViewModel(columns);
+	// Updates the table when our data changes
+	const transactions = writable(data.transactions);
+	$: transactions.set(data.transactions);
+
+	const { headerRows, pageRows, tableAttrs, tableBodyAttrs } =
+		createTransactionsTable(transactions);
 </script>
 
 <h2 class="mb-6 text-3xl font-bold tracking-tight">Transactions</h2>

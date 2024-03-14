@@ -41,7 +41,8 @@ export const userInstitutions = schema.table('user_institutions', {
 		.notNull()
 		.references(() => instituations.id),
 	accessToken: text('access_token').notNull().unique(),
-	itemId: text('item_id').notNull()
+	itemId: text('item_id').notNull(),
+	plaidCursor: text('plaid_cursor')
 });
 
 export const instituations = schema.table('institutions', {
@@ -124,18 +125,4 @@ export const transactions = schema.table('transactions', {
 	pending: boolean('boolean'),
 	channel: text('channel').notNull(),
 	iconUrl: text('icon_url')
-});
-
-export const plaidCursors = schema.table('plaid_cursors', {
-	userId: integer('user_id')
-		.notNull()
-		.references(() => users.id, {
-			onDelete: 'cascade'
-		}),
-	userInstitutions: integer('user_institution')
-		.notNull()
-		.references(() => userInstitutions.id, {
-			onDelete: 'cascade'
-		}),
-	nextCursor: text('next_cursor')
 });

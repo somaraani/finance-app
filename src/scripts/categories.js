@@ -56,7 +56,6 @@ async function importCategories() {
 
 
                 const name = parsePlaidName(plaidCategory['DETAILED'].replace(plaidCategory['PRIMARY'] + '_', '')); 
-                console.log(lastId, name)
 
                 await sql`
                     INSERT INTO finance.subcategories (name, plaid_category, description, parent)

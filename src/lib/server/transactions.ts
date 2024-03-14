@@ -1,4 +1,4 @@
-import { desc, eq, getTableColumns, inArray, type InferInsertModel } from 'drizzle-orm';
+import { desc, eq, getTableColumns, type InferInsertModel } from 'drizzle-orm';
 import {
 	accounts,
 	categories,
@@ -12,6 +12,7 @@ import { plaidClient } from './plaid';
 import { getPlaidAccountMap } from './accounts';
 import type { Transaction } from 'plaid';
 import type { AccountMedata } from '$lib/types';
+import { logger } from '$lib/util/logs';
 
 function transformPlaidTransaction(
 	transaction: Transaction,
@@ -85,17 +86,20 @@ export async function syncUserTransactions(userId: number) {
 	const categoryMap = await getPlaidCategoryMap();
 
 	await Promise.all(
-		tokens.map(async ({ accessToken }) => {
+		tokens.map(async ({ accessToken, id, plaidCursor }) => {
 			const accountTransactions = await plaidClient.transactionsSync({
 				access_token: accessToken,
-				cursor: undefined
+				cursor: plaidCursor || undefined
 			});
 
 			const newTransactions = accountTransactions.data.added.map((transaction) =>
 				transformPlaidTransaction(transaction, userId, accountMap, categoryMap)
 			);
 
-			await db.insert(transactions).values(newTransactions);
+			if (newTransactions.length) {
+				await db.insert(transactions).values(newTransactions);
+			}
+			logger.info(`Added ${newTransactions.length} new transactions`);
 
 			for (const transaction of accountTransactions.data.modified) {
 				await db
@@ -103,13 +107,25 @@ export async function syncUserTransactions(userId: number) {
 					.set({ ...transformPlaidTransaction(transaction, userId, accountMap, categoryMap) })
 					.where(eq(transactions.plaidId, transaction.transaction_id));
 			}
+			logger.info(`Modified ${accountTransactions.data.modified.length} transactions`);
 
-			// TODO what happens if deleted without an ID?
-			const deletedIds = accountTransactions.data.removed
-				.map((t) => t.transaction_id)
-				.filter((t) => Boolean(t)) as string[];
+			for (const transaction of accountTransactions.data.removed) {
+				if (!transaction.transaction_id) {
+					logger.warn('Removed transaction has no plaid transaction id');
+					continue;
+				}
+				await db.delete(transactions).where(eq(transactions.plaidId, transaction.transaction_id));
+			}
+			logger.info(`Removed ${accountTransactions.data.removed.length} transactions`);
 
-			await db.delete(transactions).where(inArray(transactions.plaidId, deletedIds));
+			// Add cursor for next sync
+			const cursor = accountTransactions.data.next_cursor;
+			await db
+				.update(userInstitutions)
+				.set({
+					plaidCursor: cursor
+				})
+				.where(eq(userInstitutions.id, id));
 		})
 	);
 }
