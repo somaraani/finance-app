@@ -1,4 +1,14 @@
-import { desc, eq, getTableColumns, type InferInsertModel } from 'drizzle-orm';
+import {
+	and,
+	asc,
+	desc,
+	eq,
+	getTableColumns,
+	gte,
+	lte,
+	type InferInsertModel,
+	type SQLWrapper
+} from 'drizzle-orm';
 import {
 	accounts,
 	categories,
@@ -10,12 +20,13 @@ import {
 import { db } from './db';
 import { plaidClient } from './plaid';
 import { getPlaidAccountMap } from './accounts';
-import type { Transaction } from 'plaid';
-import type { AccountMedata } from '$lib/types';
+import type { Transaction as PlaidTransaction } from 'plaid';
+import type { AccountMedata, Ranges } from '$lib/types';
 import { logger } from '$lib/util/logs';
+import type { Transaction } from '$lib/types/transactions.types';
 
 function transformPlaidTransaction(
-	transaction: Transaction,
+	transaction: PlaidTransaction,
 	userId: number,
 	accountMap: { [key: string]: AccountMedata },
 	categoryMap: { [key: string]: number }
@@ -40,7 +51,65 @@ function transformPlaidTransaction(
 	};
 }
 
-export async function getUserTransactions(userId: number) {
+export async function getUserTransactions(
+	userId: number,
+	options?: {
+		/**
+		 * Date to start on
+		 */
+
+		startDate?: Date;
+
+		/**
+		 * Date to end on
+		 */
+		endDate?: Date;
+
+		/**
+		 * Range to set, instead of start and end date
+		 */
+		range?: Ranges;
+
+		/**
+		 * The order to return in. Desc is most recent first.
+		 */
+		order?: 'asc' | 'desc';
+	}
+): Promise<Transaction[]> {
+	const filters: SQLWrapper[] = [];
+
+	if (options?.range) {
+		switch (options.range) {
+			case 'month':
+				options.startDate = new Date();
+				options.startDate.setMonth(new Date().getMonth() - 1);
+				break;
+			case 'halfYear':
+				options.startDate = new Date();
+				options.startDate.setMonth(new Date().getMonth() - 6);
+				break;
+			case 'year':
+				options.startDate = new Date();
+				options.startDate.setFullYear(new Date().getFullYear() - 1);
+				break;
+		}
+	}
+
+	if (options?.startDate) {
+		filters.push(gte(transactions.timestamp, options.startDate));
+	}
+
+	if (options?.endDate) {
+		filters.push(lte(transactions.timestamp, options.endDate));
+	}
+
+	let order;
+	if (options?.order === 'asc') {
+		order = asc(transactions.timestamp);
+	} else {
+		order = desc(transactions.timestamp);
+	}
+
 	const result = await db
 		.select({
 			...getTableColumns(transactions),
@@ -51,14 +120,14 @@ export async function getUserTransactions(userId: number) {
 			accountName: accounts.name
 		})
 		.from(transactions)
-		.where(eq(transactions.userId, userId))
+		.where(and(eq(transactions.userId, userId), ...filters))
 		.innerJoin(accounts, eq(accounts.id, transactions.accountId))
 		.innerJoin(instituations, eq(instituations.id, accounts.institutionId))
 		.innerJoin(categories, eq(transactions.category, categories.id))
 		.innerJoin(subcategories, eq(transactions.subcategory, subcategories.id))
-		.orderBy(desc(transactions.timestamp));
+		.orderBy(order);
 
-	return result;
+	return result as Transaction[];
 }
 
 async function getPlaidCategoryMap() {

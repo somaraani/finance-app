@@ -4,6 +4,7 @@
 	import SpendingChart from '$lib/components/app/spending/spending-chart.svelte';
 	import * as Card from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
+	import SpendingCategories from '$lib/components/app/spending/spending-categories.svelte';
 
 	export let data;
 </script>
@@ -29,5 +30,6 @@
 		<NetworthChart data={data.networth} />
 		<SpendingChart data={data.spending} />
 		<AccountsCard data={data.accounts} />
+		<SpendingCategories />
 	</div>
 {/if}

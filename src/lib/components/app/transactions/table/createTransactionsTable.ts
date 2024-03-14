@@ -1,8 +1,9 @@
 import TransactionCategory from '$lib/components/app/transactions/table/transaction-category.svelte';
 import TransactionName from '$lib/components/app/transactions/table/transaction-name.svelte';
+import type { Transaction } from '$lib/types/transactions.types';
 import { createRender, createTable, type ReadOrWritable } from 'svelte-headless-table';
 
-export function createTransactionsTable(data: ReadOrWritable<any[]>) {
+export function createTransactionsTable(data: ReadOrWritable<Transaction[]>) {
 	const table = createTable(data);
 	const columns = table.createColumns([
 		table.column({

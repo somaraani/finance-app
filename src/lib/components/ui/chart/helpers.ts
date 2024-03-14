@@ -1,7 +1,4 @@
-export type ChartData = {
-	date: Date;
-	value: unknown;
-};
+import type { ChartData } from '$lib/types';
 
 export function color(opacity: string = '1') {
 	return () => `hsl(var(--primary) / ${opacity})`;
@@ -64,7 +61,7 @@ export function tooltipTemplate(d: ChartData) {
         ${d.date.toLocaleDateString()}
       </span>
       <span class="font-bold text-muted-foreground">
-        $${d.value}
+        $${d.value.toFixed(2)}
       </span>
     </div>
   </div>

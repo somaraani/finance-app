@@ -29,15 +29,7 @@
 	margin={{ top: 5, right: 10, left: 10, bottom: 0 }}
 >
 	<VisTooltip />
-	<VisLine {x} {y} lineWidth={1} color={lineColors} />
-	<VisScatter
-		{x}
-		{y}
-		color={scatterPointColors}
-		size={6}
-		strokeColor={scatterPointStrokeColors}
-		strokeWidth={crosshairStrokeWidths}
-	/>
+	<VisLine {x} {y} lineWidth={2} color={lineColors} />
 	<VisAxis
 		type="x"
 		{x}

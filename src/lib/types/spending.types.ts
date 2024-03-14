@@ -1,8 +1,13 @@
 export type SpendingData = {
 	history: SpendingEntry[];
-	current: number;
-	monthDelta: number;
 };
+
+export type SpendingCategory = {
+	label: string;
+	value: number;
+};
+
+export type SpendingCategories = SpendingCategory[];
 
 export type SpendingEntry = {
 	date: Date;

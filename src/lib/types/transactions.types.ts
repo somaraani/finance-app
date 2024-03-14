@@ -1,0 +1,20 @@
+export type Transaction = {
+	id: number;
+	name: string;
+	plaidId: string;
+	userId: number;
+	accountId: number;
+	amount: number;
+	currencyCode: string;
+	timestamp: Date;
+	category: number;
+	subcategory: number;
+	pending: boolean;
+	channel: string;
+	iconUrl: string;
+	categoryName: string;
+	subcategoryName: string;
+	institutionName: string;
+	institutionId: number;
+	accountName: string;
+};

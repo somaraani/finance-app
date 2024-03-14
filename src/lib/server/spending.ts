@@ -1,28 +1,71 @@
-import type { SpendingData } from '$lib/types';
+import type { Ranges, SpendingCategories } from '$lib/types';
+import { getUserTransactions } from './transactions';
 
-function getRandomInt(min: number, max: number) {
-	min = Math.ceil(min);
-	max = Math.floor(max);
-	return Math.floor(Math.random() * (max - min + 1)) + min;
+export async function getSpendingTimeline(userId: number) {
+	const startDate = new Date();
+	startDate.setMonth(new Date().getMonth() - 1);
+
+	const transactions = await getUserTransactions(userId, { startDate, order: 'asc' });
+	const spending: { [date: string]: number } = {};
+
+	let lastSpend = 0;
+
+	for (const transaction of transactions) {
+		// don't want to count money in for spends
+		if (transaction.amount < 0) {
+			continue;
+		}
+
+		const date = transaction.timestamp.toLocaleDateString();
+
+		if (!spending[date]) {
+			spending[date] = lastSpend;
+		}
+
+		spending[date] += transaction.amount;
+		lastSpend = spending[date];
+	}
+
+	const history = Object.entries(spending)
+		.map(([date, value]) => ({ date: new Date(date), value }))
+		.sort((a, b) => a.date.getTime() - b.date.getTime());
+
+	return { history };
 }
 
-const data: SpendingData = {
-	current: 4214.32,
-	monthDelta: 123.45,
-	history: []
-};
+export async function getSpendingCategories(
+	userId: number,
+	range: Ranges
+): Promise<SpendingCategories> {
+	const startDate = new Date();
+	startDate.setMonth(new Date().getMonth() - 1);
 
-const endDate = new Date();
-const startDate = new Date();
-startDate.setMonth(startDate.getMonth() - 1);
+	const transactions = await getUserTransactions(userId, { range, order: 'asc' });
 
-for (let d = startDate; d <= endDate; d.setDate(d.getDate() + 1)) {
-	data.history.push({
-		date: new Date(d),
-		value: getRandomInt(100, 500)
-	});
-}
+	const spendingMap: { [key: string]: number } = {};
 
-export function getSpendingTimeline(userId: number) {
-	return data;
+	for (const transaction of transactions) {
+		// don't want to count money in for spends
+		if (transaction.amount < 0) {
+			continue;
+		}
+
+		if (!spendingMap[transaction.categoryName]) {
+			spendingMap[transaction.categoryName] = 0;
+		}
+
+		spendingMap[transaction.categoryName] += transaction.amount;
+	}
+
+	const sortedCategories = Object.entries(spendingMap).sort((a, b) => b[1] - a[1]);
+
+	const topCategories = sortedCategories.slice(0, 5);
+	const otherCategories = sortedCategories.slice(5);
+
+	const otherTotal = otherCategories.reduce((total, category) => total + category[1], 0);
+
+	return [
+		...topCategories.map(([label, value]) => ({ label, value })),
+		{ label: 'Others', value: otherTotal }
+	];
 }

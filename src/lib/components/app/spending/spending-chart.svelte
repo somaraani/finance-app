@@ -1,18 +1,11 @@
 <script lang="ts">
 	import ChartCard from '$lib/components/ui/chart/chart-card.svelte';
-	import type { SpendingData, SpendingEntry } from '$lib/types';
+	import type { ChartData, SpendingData } from '$lib/types';
 
-	export let data: SpendingData;
-
-	const x = (row: SpendingEntry) => row.date.getTime();
-	const y = [(row: SpendingEntry) => row.value];
+	export let data: SpendingData | undefined;
+	const y = [(row: ChartData) => row.value];
 </script>
 
-<ChartCard
-	title="Spending"
-	data={data.history}
-	value={data.current}
-	delta={data.monthDelta}
-	{x}
-	{y}
-/>
+{#if data?.history}
+	<ChartCard rangeSelector={false} data={data.history} title="Monthly Spending" {y} />
+{/if}
