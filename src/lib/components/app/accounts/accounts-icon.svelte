@@ -1,6 +1,7 @@
 <script lang="ts">
 	import SavingsIcon from 'lucide-svelte/icons/piggy-bank';
 	import ChequeingIcon from 'lucide-svelte/icons/banknote';
+	import CreditCardIcon from 'lucide-svelte/icons/credit-card';
 	import { AccountSubtype, type AccountType } from 'plaid';
 
 	export let type: AccountType;
@@ -10,6 +11,8 @@
 <div class="big-icons mr-2 text-primary">
 	{#if subtype === AccountSubtype.Savings}
 		<SavingsIcon size={30} />
+	{:else if subtype === AccountSubtype.CreditCard}
+		<CreditCardIcon size={30} />
 	{:else}
 		<ChequeingIcon size={30} />
 	{/if}

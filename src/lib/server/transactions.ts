@@ -24,6 +24,7 @@ import type { Transaction as PlaidTransaction } from 'plaid';
 import type { AccountMedata, Ranges } from '$lib/types';
 import { logger } from '$lib/util/logs';
 import type { Transaction } from '$lib/types/transactions.types';
+import { getDatesFromRange } from '$lib/util/filters';
 
 function transformPlaidTransaction(
 	transaction: PlaidTransaction,
@@ -78,29 +79,23 @@ export async function getUserTransactions(
 ): Promise<Transaction[]> {
 	const filters: SQLWrapper[] = [];
 
+	let startDate, endDate;
+
 	if (options?.range) {
-		switch (options.range) {
-			case 'month':
-				options.startDate = new Date();
-				options.startDate.setMonth(new Date().getMonth() - 1);
-				break;
-			case 'halfYear':
-				options.startDate = new Date();
-				options.startDate.setMonth(new Date().getMonth() - 6);
-				break;
-			case 'year':
-				options.startDate = new Date();
-				options.startDate.setFullYear(new Date().getFullYear() - 1);
-				break;
-		}
+		const rangeDates = getDatesFromRange(options?.range);
+		startDate = rangeDates.startDate;
+		endDate = rangeDates.endDate;
+	} else {
+		startDate = options?.startDate;
+		endDate = options?.endDate;
 	}
 
-	if (options?.startDate) {
-		filters.push(gte(transactions.timestamp, options.startDate));
+	if (startDate) {
+		filters.push(gte(transactions.timestamp, startDate));
 	}
 
-	if (options?.endDate) {
-		filters.push(lte(transactions.timestamp, options.endDate));
+	if (endDate) {
+		filters.push(lte(transactions.timestamp, endDate));
 	}
 
 	let order;

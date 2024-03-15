@@ -26,7 +26,7 @@ export async function createLinkToken(userId: number) {
 		client_id: PLAID_CLIENT_ID,
 		secret: PLAID_SECRET,
 		client_name: 'Finance App',
-		products: [Products.Auth, Products.Transactions],
+		products: [Products.Transactions],
 		country_codes: [CountryCode.Ca, CountryCode.Us],
 		language: 'en'
 	});

@@ -1,6 +1,4 @@
 export type NetworthData = {
-	history: {
-		date: Date;
-		value: number;
-	}[];
-};
+	date: Date;
+	value: number;
+}[];

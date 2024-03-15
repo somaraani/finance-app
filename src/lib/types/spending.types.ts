@@ -1,6 +1,8 @@
 export type SpendingData = {
-	history: SpendingEntry[];
-};
+	index: number;
+	current?: number;
+	last?: number;
+}[];
 
 export type SpendingCategory = {
 	label: string;
@@ -8,8 +10,3 @@ export type SpendingCategory = {
 };
 
 export type SpendingCategories = SpendingCategory[];
-
-export type SpendingEntry = {
-	date: Date;
-	value: number;
-};

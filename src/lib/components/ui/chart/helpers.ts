@@ -1,4 +1,5 @@
 import type { ChartData } from '$lib/types';
+import { formatMoney } from '$lib/util';
 
 export function color(opacity: string = '1') {
 	return () => `hsl(var(--primary) / ${opacity})`;
@@ -61,10 +62,35 @@ export function tooltipTemplate(d: ChartData) {
         ${d.date.toLocaleDateString()}
       </span>
       <span class="font-bold text-muted-foreground">
-        $${d.value.toFixed(2)}
+        ${formatMoney(d.value.toFixed(2))}
       </span>
     </div>
   </div>
 </div>
+`;
+}
+
+export function spendingTooltipTemplate(d) {
+	return `
+	<div class="rounded-lg border bg-background p-2 shadow-sm">
+	<div class="grid grid-cols-2 gap-4">
+	  <div class="flex flex-col">
+		<span class="text-[0.70rem] uppercase text-muted-foreground">
+		  Last month
+		</span>
+		<span class="font-bold text-muted-foreground">
+		  ${formatMoney(d.last)}
+		</span>
+	  </div>
+	  <div class="flex flex-col">
+		<span class="text-[0.70rem] uppercase text-muted-foreground">
+		  This month
+		</span>
+		<span class="font-bold text-foreground text-right">
+		  ${formatMoney(d.current)}
+		</span>
+	  </div>
+	</div>
+  </div>
 `;
 }

@@ -1,36 +1,49 @@
-import type { Ranges, SpendingCategories } from '$lib/types';
+import type { Ranges, SpendingCategories, SpendingData } from '$lib/types';
 import { getUserTransactions } from './transactions';
 
-export async function getSpendingTimeline(userId: number) {
-	const startDate = new Date();
-	startDate.setMonth(new Date().getMonth() - 1);
+export async function getSpendingTimeline(userId: number): Promise<SpendingData> {
+	const currentMonthStart = new Date();
+	currentMonthStart.setDate(1);
+	currentMonthStart.setHours(0, 0, 0, 0);
 
-	const transactions = await getUserTransactions(userId, { startDate, order: 'asc' });
-	const spending: { [date: string]: number } = {};
+	const lastMonthStart = new Date(currentMonthStart);
+	lastMonthStart.setMonth(currentMonthStart.getMonth() - 1);
 
-	let lastSpend = 0;
+	const transactions = await getUserTransactions(userId, {
+		startDate: lastMonthStart,
+		order: 'asc'
+	});
+
+	const currentDate = new Date().getDate();
+	const currentMonthSpending: number[] = new Array(currentDate).fill(0);
+	const lastMonthSpending: number[] = new Array(31).fill(0);
 
 	for (const transaction of transactions) {
-		// don't want to count money in for spends
 		if (transaction.amount < 0) {
 			continue;
 		}
 
-		const date = transaction.timestamp.toLocaleDateString();
+		const date = transaction.timestamp.getDate();
+		const month = transaction.timestamp.getMonth();
 
-		if (!spending[date]) {
-			spending[date] = lastSpend;
+		if (month === currentMonthStart.getMonth()) {
+			currentMonthSpending[date - 1] += transaction.amount;
+			for (let i = date; i < currentDate; i++) {
+				currentMonthSpending[i] += transaction.amount;
+			}
+		} else if (month === lastMonthStart.getMonth()) {
+			lastMonthSpending[date - 1] += transaction.amount;
+			for (let i = date; i < lastMonthSpending.length; i++) {
+				lastMonthSpending[i] += transaction.amount;
+			}
 		}
-
-		spending[date] += transaction.amount;
-		lastSpend = spending[date];
 	}
 
-	const history = Object.entries(spending)
-		.map(([date, value]) => ({ date: new Date(date), value }))
-		.sort((a, b) => a.date.getTime() - b.date.getTime());
-
-	return { history };
+	return lastMonthSpending.map((last, i) => ({
+		index: i,
+		last,
+		current: i < currentMonthSpending.length ? currentMonthSpending[i] : undefined
+	}));
 }
 
 export async function getSpendingCategories(

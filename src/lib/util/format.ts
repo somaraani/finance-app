@@ -20,3 +20,8 @@ export function getRelativeTime(date: Date | null): string {
 		return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
 	}
 }
+
+export function formatMoney(value?: number) {
+	if (value === undefined) return '-';
+	return value.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+}
