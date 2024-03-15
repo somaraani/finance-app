@@ -1,13 +1,17 @@
 // src/hooks.server.ts
 import { lucia } from '$lib/server/auth';
 import { db } from '$lib/server/db';
+import { createContext } from '$lib/trpc/context';
+import { router } from '$lib/trpc/router';
 import { redirect, type Handle } from '@sveltejs/kit';
+import { sequence } from '@sveltejs/kit/hooks';
 import { eq } from 'drizzle-orm';
+import { createTRPCHandle } from 'trpc-sveltekit';
 import { users } from './schemas/schema';
 
 const unProtectedRoutes = ['/signup', '/login'];
 
-export const handle: Handle = async ({ event, resolve }) => {
+const authHandle: Handle = async ({ event, resolve }) => {
 	const sessionId = event.cookies.get(lucia.sessionCookieName);
 
 	if (!sessionId) {
@@ -56,3 +60,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 	event.locals.session = session;
 	return resolve(event);
 };
+
+const trpcHandle: Handle = createTRPCHandle({ router, createContext });
+
+export const handle = sequence(authHandle, trpcHandle);
