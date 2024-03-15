@@ -11,7 +11,7 @@
 	import Button from '../ui/button/button.svelte';
 	import Separator from '../ui/separator/separator.svelte';
 	import type { User } from '$lib/types/users.types';
-	import { invalidate } from '$app/navigation';
+	import { trpc } from '$lib/trpc/client';
 
 	export let user: User;
 
@@ -19,15 +19,9 @@
 
 	async function refreshData() {
 		refreshState = 'loading';
-		const response = await fetch('/api/refresh', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			}
-		});
-
-		if (response.ok) {
-			await invalidate('data:now');
+		const result = await trpc().createUtils().client.accounts.refresh.mutate();
+		if (!result.failures) {
+			trpc().createUtils().invalidate();
 			refreshState = 'success';
 		} else {
 			refreshState = 'error';

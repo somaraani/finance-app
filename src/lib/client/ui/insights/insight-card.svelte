@@ -13,9 +13,7 @@
 <Card.Root>
 	<Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
 		<Card.Title>{title}</Card.Title>
-		<!-- {#if rangeSelector}
-			<RangeSelector />
-		{/if} -->
+		<slot name="filters" />
 	</Card.Header>
 	<Card.Content>
 		<div class="text-2xl font-bold">{formatMoney(current)}</div>

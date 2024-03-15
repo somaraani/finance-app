@@ -9,5 +9,9 @@ export const spendingRouter = t.router({
 		.query(async ({ ctx, input }) => {
 			const userId = ctx.event.locals.user.id;
 			return SpendingService.getSpendingCategories(userId, input.range);
-		})
+		}),
+	getTimeline: t.procedure.query(async ({ ctx }) => {
+		const userId = ctx.event.locals.user.id;
+		return SpendingService.getSpendingTimeline(userId);
+	})
 });

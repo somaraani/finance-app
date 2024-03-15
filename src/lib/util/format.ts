@@ -1,5 +1,6 @@
-export function getRelativeTime(date: Date | null): string {
+export function getRelativeTime(date: Date | null | string): string {
 	if (!date) return '-';
+	if (typeof date === 'string') date = new Date(date);
 	const now = new Date();
 	const seconds = Math.round((now.getTime() - date.getTime()) / 1000);
 	const minutes = Math.round(seconds / 60);

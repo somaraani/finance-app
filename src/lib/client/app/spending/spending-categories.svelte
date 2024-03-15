@@ -5,11 +5,16 @@
 	import { rangeText, type ChartData, type Ranges } from '$lib/types';
 	import { VisBulletLegend, VisDonut, VisSingleContainer, VisTooltip } from '@unovis/svelte';
 
-	let range: Ranges = 'month';
-	const req = trpc().spending.getCategories.createQuery({ range });
+	type Item = typeof $req.data;
 
-	$: items = $req.data?.map((d) => ({ name: d.label }));
-	$: totalAmount = $req.data?.reduce((acc, cur) => acc + cur.value, 0);
+	let range: Ranges = 'month';
+	let data: Item = [];
+
+	$: req = trpc().spending.getCategories.createQuery({ range });
+
+	$: data = $req.data ? $req.data : data;
+	$: items = data?.map((d) => ({ name: d.label })) ?? [];
+	$: totalAmount = data?.reduce((acc, cur) => acc + cur.value, 0);
 
 	const value = (d: ChartData) => d.value;
 </script>
@@ -19,26 +24,24 @@
 		<Card.Title>Categories</Card.Title>
 		<RangeSelector bind:range loading={$req.isLoading} />
 	</Card.Header>
-	<Card.Content class="donut">
-		{#if $req.data}
-			<VisSingleContainer class="donut" data={$req.data}>
-				<VisDonut
-					centralLabel={totalAmount?.toLocaleString('en-US', {
-						style: 'currency',
-						currency: 'USD'
-					})}
-					centralSubLabel={rangeText[range]}
-					arcWidth={30}
-					showBackground={false}
-					padAngle={0.03}
-					cornerRadius={5}
-					{value}
-				/>
-				<VisTooltip />
-			</VisSingleContainer>
-			<div class="mt-5 flex justify-center">
-				<VisBulletLegend {items} />
-			</div>
-		{/if}
+	<Card.Content>
+		<VisSingleContainer {data}>
+			<VisDonut
+				centralLabel={totalAmount?.toLocaleString('en-US', {
+					style: 'currency',
+					currency: 'USD'
+				})}
+				centralSubLabel={rangeText[range]}
+				arcWidth={30}
+				showBackground={false}
+				padAngle={0.03}
+				cornerRadius={5}
+				{value}
+			/>
+			<VisTooltip />
+		</VisSingleContainer>
+		<div class="mt-5 flex justify-center">
+			<VisBulletLegend {items} />
+		</div>
 	</Card.Content>
 </Card.Root>

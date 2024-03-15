@@ -1,44 +1,50 @@
 <script lang="ts">
-	import * as Card from '$lib/client/ui/card';
-	import type { ChartData, SpendingData } from '$lib/types';
-	import { cn } from '$lib/client/ui/utils.js.js';
-
 	import {
 		crosshairPointColors,
 		lineColors,
 		spendingTooltipTemplate
 	} from '$lib/client/ui/chart/helpers';
+	import InsightCard from '$lib/client/ui/insights/insight-card.svelte';
+	import { trpc } from '$lib/trpc/client';
+	import type { ArrayType } from '$lib/types/util';
 	import { VisAxis, VisCrosshair, VisLine, VisTooltip, VisXYContainer } from '@unovis/svelte';
-	import { formatMoney } from '$lib/util';
 
-	export let data: SpendingData | undefined;
+	const req = trpc().spending.getTimeline.createQuery();
+	type Row = ArrayType<(typeof $req)['data']>;
 
-	const date = new Date().getDate();
-	const y = [(row: ChartData) => row.current, (row) => row.last];
-	const x = (row) => row.index;
+	const y = [(row: Row) => row.current, (row: Row) => row.last];
+	const x = (row: Row) => row.index;
 
-	console.log(data[date]);
+	let current: number, deltaText: string, deltaClass: string;
 
-	const delta = (data[date - 1].current - data[date - 1].last) / data[date - 1].last;
-	const deltaPercent = delta.toLocaleString('en-US', {
-		style: 'percent',
-		maximumFractionDigits: 0
-	});
-	const deltaText = `${delta > 0 ? '+' : ''}${deltaPercent} ${delta > 0 ? 'more' : 'less'} than last month`;
-	const current = data[date - 1].current;
+	$: if ($req.data) {
+		const date = new Date().getDate();
+		const last = $req.data[date - 1].last || 0;
+
+		current = $req.data[date - 1].current || 0;
+
+		const delta = (current - last) / last;
+		const deltaPercent = delta.toLocaleString('en-US', {
+			style: 'percent',
+			maximumFractionDigits: 0
+		});
+
+		deltaText = `${delta > 0 ? '+' : ''}${deltaPercent} ${delta > 0 ? 'more' : 'less'} than last month`;
+		deltaClass = delta < 0 ? 'text-green-500' : 'text-red-500';
+	}
 </script>
 
-<Card.Root>
-	<Card.Header class="mb-2 flex flex-row items-center justify-between space-y-0 pb-4 pt-9">
-		<Card.Title>Monthly Spending</Card.Title>
-	</Card.Header>
-	<Card.Content>
-		<div class="text-2xl font-bold">{formatMoney(current)}</div>
-		<p class={cn('mb-4 mt-1 text-xs', delta < 0 ? 'text-green' : 'text-red')}>{deltaText}</p>
-
+<InsightCard
+	title={'Monthly Spending'}
+	text={deltaText}
+	textClass={deltaClass}
+	{current}
+	loading={$req.isLoading}
+>
+	{#if $req.data}
 		<VisXYContainer
 			class="vis-xy-container"
-			{data}
+			data={$req.data}
 			height={200}
 			margin={{ top: 5, right: 10, left: 10, bottom: 0 }}
 		>
@@ -49,15 +55,15 @@
 				{x}
 				tickLine={undefined}
 				tickValues={[new Date().getDate() - 1]}
-				tickFormat={(d) => 'today'}
+				tickFormat={() => 'today'}
 				gridLine={true}
 				domainLine={false}
 			/>
 			<VisAxis type="y" {y} gridLine={false} tickLine={undefined} domainLine={false} />
 			<VisCrosshair template={spendingTooltipTemplate} color={crosshairPointColors} />
 		</VisXYContainer>
-	</Card.Content>
-</Card.Root>
+	{/if}
+</InsightCard>
 
 <style>
 	:root {

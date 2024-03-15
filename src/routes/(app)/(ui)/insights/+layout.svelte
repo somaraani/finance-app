@@ -3,6 +3,7 @@
 	import { Separator } from '$lib/client/ui/separator';
 	import DashboardIcon from 'lucide-svelte/icons/layout-dashboard';
 	import NetworthIcon from 'lucide-svelte/icons/piggy-bank';
+	import SpendingIcon from 'lucide-svelte/icons/hand-coins';
 </script>
 
 <div class="flex h-full flex-row">
@@ -12,6 +13,9 @@
 		>
 		<Button href="/insights/networth" class="w-full justify-start" variant="ghost"
 			><NetworthIcon />Networth</Button
+		>
+		<Button href="/insights/spending" class="w-full justify-start" variant="ghost"
+			><SpendingIcon />Spending</Button
 		>
 	</div>
 	<Separator orientation="vertical" />
@@ -27,7 +31,7 @@
 		--vis-tooltip-border-color: 'transparent';
 	}
 
-	:root {
+	:global(vis-single-container) {
 		--vis-donut-central-label-text-color: hsl(var(--foreground));
 		--vis-donut-central-sub-label-text-color: hsl(var(--muted-foreground));
 		--vis-donut-central-label-font-size: 24px;
