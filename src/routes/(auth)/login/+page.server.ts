@@ -1,9 +1,9 @@
-import { db } from '$lib/server/db';
+import { db } from '$lib/server/util/db';
 import { redirect, type Actions, fail } from '@sveltejs/kit';
 import { Argon2id } from 'oslo/password';
 import { users } from '../../../schemas/schema';
 import { eq } from 'drizzle-orm';
-import { lucia } from '$lib/server/auth';
+import { lucia } from '$lib/server/util/auth';
 
 export const actions = {
 	default: async ({ request, cookies }) => {

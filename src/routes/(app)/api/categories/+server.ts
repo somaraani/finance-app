@@ -1,4 +1,4 @@
-import { getSpendingCategories } from '$lib/server/spending';
+import { getSpendingCategories } from '$lib/server/services/spending';
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import type { Ranges } from '$lib/types';

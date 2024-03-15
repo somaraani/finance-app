@@ -1,5 +1,5 @@
-import { syncAccountBalances } from '$lib/server/accounts';
-import { syncUserTransactions } from '$lib/server/transactions';
+import { syncAccountBalances } from '$lib/server/services/accounts';
+import { syncUserTransactions } from '$lib/server/services/transactions';
 import { logger } from '$lib/util/logs';
 import { json, type RequestHandler } from '@sveltejs/kit';
 

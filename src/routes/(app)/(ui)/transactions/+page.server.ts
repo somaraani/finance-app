@@ -1,4 +1,4 @@
-import { getUserTransactions } from '$lib/server/transactions';
+import { getUserTransactions } from '$lib/server/services/transactions';
 import { logger } from '$lib/util/logs';
 import type { PageServerLoad } from './$types';
 

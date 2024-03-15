@@ -1,10 +1,6 @@
 <script lang="ts">
-	import AccountsCard from '$lib/components/app/accounts/accounts-card.svelte';
-	import NetworthChart from '$lib/components/app/networth/networth-chart.svelte';
-	import SpendingChart from '$lib/components/app/spending/spending-chart.svelte';
-	import * as Card from '$lib/components/ui/card';
-	import { Button } from '$lib/components/ui/button';
-	import SpendingCategories from '$lib/components/app/spending/spending-categories.svelte';
+	import { Button } from '$lib/client/ui/button';
+	import * as Card from '$lib/client/ui/card';
 
 	export let data;
 </script>

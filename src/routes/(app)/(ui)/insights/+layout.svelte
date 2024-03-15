@@ -1,6 +1,6 @@
 <script lang="ts">
-	import Button from '$lib/components/ui/button/button.svelte';
-	import { Separator } from '$lib/components/ui/separator';
+	import { Button } from '$lib/client/ui/button';
+	import { Separator } from '$lib/client/ui/separator';
 	import DashboardIcon from 'lucide-svelte/icons/layout-dashboard';
 	import NetworthIcon from 'lucide-svelte/icons/piggy-bank';
 </script>
@@ -19,3 +19,20 @@
 		<slot />
 	</div>
 </div>
+
+<style>
+	:global(.vis-xy-container) {
+		--vis-tooltip-padding: '0px';
+		--vis-tooltip-background-color: 'transparent';
+		--vis-tooltip-border-color: 'transparent';
+	}
+
+	:root {
+		--vis-donut-central-label-text-color: hsl(var(--foreground));
+		--vis-donut-central-sub-label-text-color: hsl(var(--muted-foreground));
+		--vis-donut-central-label-font-size: 24px;
+		--vis-donut-central-label-font-weight: 700;
+		--vis-donut-central-sub-label-font-size: 1em;
+		--vis-font-family: inherit;
+	}
+</style>

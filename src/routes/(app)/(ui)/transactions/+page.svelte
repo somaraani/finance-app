@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { createTransactionsTable } from '$lib/components/app/transactions/table/createTransactionsTable.js';
-	import * as Table from '$lib/components/ui/table';
+	import { createTransactionsTable } from '$lib/client/app/transactions/table/createTransactionsTable.js';
+	import * as Table from '$lib/client/ui/table';
 	import { Render, Subscribe } from 'svelte-headless-table';
 	import { writable } from 'svelte/store';
 

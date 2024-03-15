@@ -1,6 +1,6 @@
 // src/hooks.server.ts
-import { lucia } from '$lib/server/auth';
-import { db } from '$lib/server/db';
+import { lucia } from '$lib/server/util/auth';
+import { db } from '$lib/server/util/db';
 import { createContext } from '$lib/trpc/context';
 import { router } from '$lib/trpc/router';
 import { redirect, type Handle } from '@sveltejs/kit';

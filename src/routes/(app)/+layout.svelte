@@ -1,6 +1,6 @@
 <script>
 	import { browser } from '$app/environment';
-	import { Topbar } from '$lib/components/layout';
+	import { Topbar } from '$lib/client/layout';
 	import { QueryClient, QueryClientProvider } from '@tanstack/svelte-query';
 
 	export let data;
@@ -19,7 +19,7 @@
 		<div class="border-b">
 			<Topbar user={data.user} />
 		</div>
-		<div class="flex-1 space-y-4 p-8 pt-6">
+		<div class="flex-1">
 			<slot />
 		</div>
 	</div>

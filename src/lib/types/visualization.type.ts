@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 export type ChartData = {
 	date: Date;
 	value: unknown;
@@ -10,7 +12,9 @@ export const ranges = {
 	all: 'All time'
 };
 
-export const rangeText = {
+export const RangesSchema = z.enum(['month', 'halfYear', 'year', 'all']);
+
+export const rangeText: { [key: string]: string } = {
 	month: 'in last month',
 	halfYear: 'in last 6 Months',
 	year: 'in last year',

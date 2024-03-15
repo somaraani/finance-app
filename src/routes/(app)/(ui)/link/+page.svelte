@@ -1,8 +1,8 @@
 <script lang="ts">
-	import Button from '$lib/components/ui/button/button.svelte';
-	import * as AlertDialog from '$lib/components/ui/alert-dialog';
+	import Button from '$lib/client/ui/button/button.svelte';
+	import * as AlertDialog from '$lib/client/ui/alert-dialog';
 	import { pageAction } from '$lib/util/pageActions.js';
-	import Spinner from '$lib/components/ui/spinner/spinner.svelte';
+	import Spinner from '$lib/client/ui/spinner/spinner.svelte';
 	import type { ActionData } from './$types';
 
 	export let data;

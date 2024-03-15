@@ -1,13 +1,13 @@
 <script lang="ts">
-	import Button from '$lib/components/ui/button/button.svelte';
-	import * as Card from '$lib/components/ui/card';
+	import Button from '$lib/client/ui/button/button.svelte';
+	import * as Card from '$lib/client/ui/card';
 	import { getRelativeTime, pageAction } from '$lib/util';
 	import { toast } from 'svelte-sonner';
 	import type { ActionData } from './$types';
-	import AccountsIcon from '$lib/components/app/accounts/accounts-icon.svelte';
+	import AccountsIcon from '$lib/client/app/accounts/accounts-icon.svelte';
 	import NewIcon from 'lucide-svelte/icons/plus';
-	import UnlinkDialog from '$lib/components/app/accounts/unlink-dialog.svelte';
-	import { Separator } from '$lib/components/ui/separator';
+	import UnlinkDialog from '$lib/client/app/accounts/unlink-dialog.svelte';
+	import { Separator } from '$lib/client/ui/separator';
 
 	export let data;
 

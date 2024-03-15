@@ -1,9 +1,9 @@
 <script lang="ts">
 	import type { ActionData } from './$types';
-	import { Button } from '$lib/components/ui/button/index.js';
-	import * as Card from '$lib/components/ui/card/index.js';
-	import { Input } from '$lib/components/ui/input/index.js';
-	import { Label } from '$lib/components/ui/label/index.js';
+	import { Button } from '$lib/client/ui/button/index.js';
+	import * as Card from '$lib/client/ui/card/index.js';
+	import { Input } from '$lib/client/ui/input/index.js';
+	import { Label } from '$lib/client/ui/label/index.js';
 
 	export let form: ActionData;
 
