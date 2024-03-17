@@ -3,7 +3,7 @@
 	import SpendingChart from '$lib/client/app/spending/spending-chart.svelte';
 </script>
 
-<div class="space-y-6">
+<div class="flex flex-col gap-10">
 	<SpendingChart />
 	<SpendingCategories />
 </div>

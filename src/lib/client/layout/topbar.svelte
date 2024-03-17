@@ -12,6 +12,7 @@
 	import Separator from '../ui/separator/separator.svelte';
 	import type { User } from '$lib/types/users.types';
 	import { trpc } from '$lib/trpc/client';
+	import { invalidate } from '$app/navigation';
 
 	export let user: User;
 
@@ -22,6 +23,7 @@
 		const result = await trpc().createUtils().client.accounts.refresh.mutate();
 		if (!result.failures) {
 			trpc().createUtils().invalidate();
+			invalidate('data:now');
 			refreshState = 'success';
 		} else {
 			refreshState = 'error';

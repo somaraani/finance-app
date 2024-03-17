@@ -1,6 +1,8 @@
 import type { Ranges } from '$lib/types';
 
 export function getDatesFromRange(range: Ranges) {
+	if (range === 'all') return { startDate: undefined, endDate: new Date() };
+
 	const startDate = new Date();
 
 	switch (range) {

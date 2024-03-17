@@ -19,7 +19,7 @@
 	let range: Ranges = 'month';
 	let data: NetworthData = [];
 
-	$: req = trpc().networth.getData.createQuery({ range });
+	$: req = trpc().assets.getData.createQuery({ range });
 	$: data = $req.data || data;
 
 	$: current = data?.length ? data[data.length - 1].value : 0;
@@ -40,9 +40,9 @@
 >
 	<RangeSelector slot="filters" bind:range loading={$req.isLoading} />
 	<VisXYContainer
+		height={260}
 		class="vis-xy-container"
 		{data}
-		height={200}
 		margin={{ top: 5, right: 10, left: 10, bottom: 0 }}
 	>
 		<VisTooltip />

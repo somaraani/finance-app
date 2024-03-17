@@ -34,7 +34,16 @@ export const dailyTickFormat = (d: number) =>
  * For example, in this instance below, we know that we only have 2 lines, so we can hardcode the colors array to return 2 colors for the 2 indexes i.e. 2 lines.
  */
 export function lineColors<T>(_: T, i: number) {
-	return ['hsl(var(--primary))', 'hsl(var(--primary) / 0.50)'][i];
+	return [
+		'hsl(var(--primary))',
+		'hsl(var(--primary) / 0.50)',
+		'#f4b83e',
+		'#ff6b7e',
+		'#a6cc74',
+		'#a6cc74',
+		'#00c19a',
+		'#6859be'
+	][i];
 }
 
 export function scatterPointColors<T>(_: T, i: number) {

@@ -11,15 +11,15 @@
 		<Button href="/insights" class="w-full justify-start" variant="ghost"
 			><DashboardIcon />Dashboard</Button
 		>
-		<Button href="/insights/networth" class="w-full justify-start" variant="ghost"
-			><NetworthIcon />Networth</Button
+		<Button href="/insights/assets" class="w-full justify-start" variant="ghost"
+			><NetworthIcon />Assets</Button
 		>
 		<Button href="/insights/spending" class="w-full justify-start" variant="ghost"
 			><SpendingIcon />Spending</Button
 		>
 	</div>
 	<Separator orientation="vertical" />
-	<div class="w-full p-8">
+	<div class="w-full space-y-6 p-8">
 		<slot />
 	</div>
 </div>
@@ -29,6 +29,8 @@
 		--vis-tooltip-padding: '0px';
 		--vis-tooltip-background-color: 'transparent';
 		--vis-tooltip-border-color: 'transparent';
+		--vis-axis-grid-color: hsl(var(--muted-foreground));
+		height: 100%;
 	}
 
 	:global(vis-single-container) {

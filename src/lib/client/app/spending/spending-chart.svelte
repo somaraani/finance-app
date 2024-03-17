@@ -43,9 +43,8 @@
 >
 	{#if $req.data}
 		<VisXYContainer
-			class="vis-xy-container"
+			class="vis-xy-container grow"
 			data={$req.data}
-			height={200}
 			margin={{ top: 5, right: 10, left: 10, bottom: 0 }}
 		>
 			<VisTooltip />
@@ -64,9 +63,3 @@
 		</VisXYContainer>
 	{/if}
 </InsightCard>
-
-<style>
-	:root {
-		--vis-axis-grid-color: hsl(var(--muted-foreground));
-	}
-</style>

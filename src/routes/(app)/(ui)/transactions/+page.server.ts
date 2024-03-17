@@ -1,4 +1,4 @@
-import { getUserTransactions } from '$lib/server/services/transactions';
+import { TransactionsService } from '$lib/server/services/transactions';
 import { logger } from '$lib/util/logs';
 import type { PageServerLoad } from './$types';
 
@@ -8,6 +8,6 @@ export const load: PageServerLoad = async (event) => {
 	// We can invalidate the data to cause this to refresh
 	event.depends('data:now');
 
-	const transactions = await getUserTransactions(event.locals.user.id);
+	const transactions = await TransactionsService.getUserTransactions(event.locals.user.id);
 	return { transactions };
 };
