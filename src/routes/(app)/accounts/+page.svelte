@@ -5,9 +5,9 @@
 	import { toast } from 'svelte-sonner';
 	import type { ActionData } from './$types';
 	import AccountsIcon from '$lib/client/app/accounts/accounts-icon.svelte';
-	import NewIcon from 'lucide-svelte/icons/plus';
 	import UnlinkDialog from '$lib/client/app/accounts/unlink-dialog.svelte';
 	import { Separator } from '$lib/client/ui/separator';
+	import AddDialog from '$lib/client/app/accounts/add-dialog.svelte';
 
 	export let data;
 
@@ -26,7 +26,7 @@
 <div class="flex">
 	<h2 class="mb-6 text-3xl font-bold tracking-tight">Linked Accounts</h2>
 	<div class="ml-auto">
-		<Button variant="link" href="/link"><NewIcon />Add New</Button>
+		<AddDialog />
 	</div>
 </div>
 <div>

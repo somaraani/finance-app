@@ -19,7 +19,7 @@
 		<div class="border-b">
 			<Topbar user={data.user} />
 		</div>
-		<div class="flex-1">
+		<div class="flex-1 p-6">
 			<slot />
 		</div>
 	</div>

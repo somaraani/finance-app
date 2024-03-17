@@ -6,7 +6,7 @@
 	import SpendingIcon from 'lucide-svelte/icons/hand-coins';
 </script>
 
-<div class="flex h-full flex-row">
+<div class="-m-6 flex h-full flex-row">
 	<div class="w-1/6 p-2">
 		<Button href="/insights" class="w-full justify-start" variant="ghost"
 			><DashboardIcon />Dashboard</Button
