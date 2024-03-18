@@ -1,4 +1,4 @@
-import { desc, eq, getTableColumns } from 'drizzle-orm';
+import { desc, eq, getTableColumns, and } from 'drizzle-orm';
 import { accounts, balances, instituations, userInstitutions } from '../../../schemas/schema';
 import { db } from '../util/db';
 import type { AccountBalance, AccountMedata } from '$lib/types';
@@ -7,6 +7,34 @@ import type { UserInstitute } from '$lib/types/institutions.types';
 import { plaidClient } from '../util/plaid';
 
 export class AccountsService {
+	static async createAccount(
+		userId: number,
+		accountName: string,
+		accountType: AccountType,
+		institutionName: string
+	) {
+		// // Check if user institution exists
+		// const userInstitution = await db
+		// 	.select()
+		// 	.from(userInstitutions)
+		// 	.where(and(eq(userInstitutions.userId, userId), eq(userInstitutions.name, institutionName)));
+		// // If user institution doesn't exist, create it
+		// if (!userInstitution) {
+		// 	await db.insert(userInstitutions).values({ userId, institutionId: institution.id });
+		// }
+		// // Create account
+		// const [newAccountId] = await db
+		// 	.insert(accounts)
+		// 	.values({
+		// 		userId,
+		// 		name: accountName,
+		// 		type: accountType,
+		// 		institutionId: institution.id
+		// 	})
+		// 	.returning(accounts.id);
+		// return newAccountId;
+	}
+
 	static async getUserAccounts(userId: number) {
 		return db
 			.select({
