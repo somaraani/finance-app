@@ -1,5 +1,4 @@
 <script lang="ts">
-	import Button from '$lib/client/ui/button/button.svelte';
 	import * as Card from '$lib/client/ui/card';
 	import { getRelativeTime, pageAction } from '$lib/util';
 	import { toast } from 'svelte-sonner';
@@ -8,6 +7,7 @@
 	import UnlinkDialog from '$lib/client/app/accounts/unlink-dialog.svelte';
 	import { Separator } from '$lib/client/ui/separator';
 	import AddDialog from '$lib/client/app/accounts/add-dialog.svelte';
+	import UploadDialog from '$lib/client/app/accounts/connectors/upload-dialog.svelte';
 
 	export let data;
 
@@ -52,8 +52,9 @@
 						<div class="mt-4 flex items-center">
 							<AccountsIcon type={account.type} subtype={account.subtype} />
 							<h1 class="ml-2">{account.name}</h1>
-							<div class="ml-auto">
-								<p>
+							<div class="ml-auto flex items-center gap-10">
+								<UploadDialog accountName={account.name} />
+								<p class="text-green">
 									{account.balance?.toLocaleString('en-US', {
 										style: 'currency',
 										currency: 'USD'
