@@ -37,41 +37,25 @@ export const userInstitutions = schema.table('user_institutions', {
 	userId: integer('user_id')
 		.notNull()
 		.references(() => users.id),
-
-	// Plaid only
-	institutionId: integer('institution_id')
-		.notNull()
-		.references(() => instituations.id),
-	accessToken: text('access_token').notNull().unique(),
-	itemId: text('item_id').notNull(),
-	plaidCursor: text('plaid_cursor')
-});
-
-export const instituations = schema.table('institutions', {
-	id: serial('id').primaryKey(),
-	plaidId: text('plaid_id').unique(),
-	name: varchar('name', { length: 255 }).notNull(),
-	logo: text('logo')
+	name: text('name')
+		.notNull(), 
+	connectorMetadata: text('connector_metadata'), 
+	connectorType: text('connector_type'),
 });
 
 // TODO should we retain accounts & balances when institution is unlinked?
 
 export const accounts = schema.table('accounts', {
 	id: serial('id').primaryKey(),
-	// shoul we store institution, or just "is primary"
 	institutionId: integer('institution_id')
 		.notNull()
-		.references(() => instituations.id),
+		.references(() => userInstitutions.id),
 	userId: integer('user_id')
 		.notNull()
 		.references(() => users.id),
 	name: text('name').notNull(),
-	type: text('type').notNull(),
-
-	// plaid only
-	plaidAccountId: text('account_id').unique(),
-	subtype: text('subtype'),
-	plaidPersistantAccountId: text('persistant_account_id').unique()
+	connectorMetadata: text('connector_metadata'),
+	type: text('type').notNull()
 });
 
 export const balances = schema.table('balances', {
@@ -93,14 +77,12 @@ export const balances = schema.table('balances', {
 
 export const categories = schema.table('categories', {
 	id: serial('id').primaryKey(),
-	plaidCategory: text('plaid_category').unique(),
 	name: text('name').notNull().unique(),
 	description: text('description')
 });
 
 export const subcategories = schema.table('subcategories', {
 	id: serial('id').primaryKey(),
-	plaidCategory: text('plaid_category').unique(),
 	name: text('name').notNull(),
 	parent: integer('parent')
 		.notNull()
@@ -111,7 +93,6 @@ export const subcategories = schema.table('subcategories', {
 export const transactions = schema.table('transactions', {
 	id: serial('id').primaryKey(),
 	name: text('name').notNull(),
-	plaidId: text('plaid_id').unique(),
 	userId: integer('user_id')
 		.notNull()
 		.references(() => users.id, {

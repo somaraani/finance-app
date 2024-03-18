@@ -1,9 +1,11 @@
 <script lang="ts">
 	import { Button } from '$lib/client/ui/button/index.js';
-	import * as Card from '$lib/client/ui/card/index.js';
 	import { Input } from '$lib/client/ui/input/index.js';
 	import { Label } from '$lib/client/ui/label/index.js';
 	import * as Select from '$lib/client/ui/select/index.js';
+	import Spinner from '$lib/client/ui/spinner/spinner.svelte';
+	import { trpc } from '$lib/trpc/client';
+	import type { AccountType } from '$lib/types';
 
 	let accountName = '';
 	let accountType = '';
@@ -14,12 +16,17 @@
 	let formValid = false;
 
 	$: {
-		formValid = accountName.trim() !== '' && accountType !== '' && institution.trim() !== '';
+		formValid = accountName.trim() !== '' && !!accountType && institution.trim() !== '';
 	}
 
-	function handleSubmit() {
-		// Handle form submission here
-		console.log({ accountName, accountType, institution });
+	const mutation = trpc().accounts.createAccount.createMutation();
+
+	async function handleSubmit() {
+		await $mutation.mutate({
+			name: accountName,
+			type: accountType?.toLowerCase() as AccountType,
+			institutionName: institution
+		});
 	}
 </script>
 
@@ -33,8 +40,8 @@
 			<Label for="accountType">Account Type</Label>
 			<Select.Root
 				selected={accountType}
-				onSelectedChange={(v) => {
-					v && (accountType = v.value);
+				onSelectedChange={(e) => {
+					accountType = e.value;
 				}}
 				required
 			>
@@ -54,6 +61,10 @@
 		</div>
 	</div>
 	<div class="mt-10 w-full">
-		<Button type="submit" class="w-full" disabled={!formValid}>Add Account</Button>
+		{#if $mutation.isPending}
+			<Button type="submit" class="w-full" disabled={true}><Spinner />Add Account</Button>
+		{:else}
+			<Button type="submit" class="w-full" disabled={!formValid}>Add Account</Button>
+		{/if}
 	</div>
 </form>

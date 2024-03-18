@@ -1,4 +1,4 @@
-import type { AccountSubtype, AccountType } from 'plaid';
+import type { AccountSubtype } from 'plaid';
 
 export type AccountMedata = {
 	id: number;
@@ -13,3 +13,5 @@ export type AccountBalance = AccountMedata & {
 	balance: number | null;
 	lastUpdated: Date | null;
 };
+
+export type AccountType = 'checking' | 'savings' | 'credit';
