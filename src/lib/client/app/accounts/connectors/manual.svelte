@@ -39,9 +39,8 @@
 		<div class="space-y-2">
 			<Label for="accountType">Account Type</Label>
 			<Select.Root
-				selected={accountType}
-				onSelectedChange={(e) => {
-					accountType = e.value;
+				onSelectedChange={(v) => {
+					v && (accountType = v.value);
 				}}
 				required
 			>
