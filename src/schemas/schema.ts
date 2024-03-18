@@ -37,6 +37,8 @@ export const userInstitutions = schema.table('user_institutions', {
 	userId: integer('user_id')
 		.notNull()
 		.references(() => users.id),
+
+	// Plaid only
 	institutionId: integer('institution_id')
 		.notNull()
 		.references(() => instituations.id),
@@ -56,6 +58,7 @@ export const instituations = schema.table('institutions', {
 
 export const accounts = schema.table('accounts', {
 	id: serial('id').primaryKey(),
+	// shoul we store institution, or just "is primary"
 	institutionId: integer('institution_id')
 		.notNull()
 		.references(() => instituations.id),
@@ -64,8 +67,10 @@ export const accounts = schema.table('accounts', {
 		.references(() => users.id),
 	name: text('name').notNull(),
 	type: text('type').notNull(),
-	subtype: text('subtype').notNull(),
+
+	// plaid only
 	plaidAccountId: text('account_id').unique(),
+	subtype: text('subtype'),
 	plaidPersistantAccountId: text('persistant_account_id').unique()
 });
 
