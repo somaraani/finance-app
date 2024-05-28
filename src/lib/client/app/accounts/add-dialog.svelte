@@ -26,9 +26,16 @@
 			component: Manual
 		}
 	];
+
+	// Function to reset selectedConnector
+	const onModalClose = (open: boolean) => {
+		if (!open) {
+			selectedConnector = undefined;
+		}
+	};
 </script>
 
-<Dialog.Root>
+<Dialog.Root onOpenChange={onModalClose}>
 	<Dialog.Trigger>
 		<Button variant="link">
 			<NewIcon />Add New
