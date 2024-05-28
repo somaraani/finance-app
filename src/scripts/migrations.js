@@ -16,7 +16,7 @@ const migrationClient = postgres(process.env.DATABASE_URL, { max: 1 });
 
 export async function migrateDb() {
 	console.log('Running drizzle generation ...');
-	exec('npx drizzle-kit generate:pg first', async (error, stdout, stderr) => {
+	exec('npx drizzle-kit generate first', async (error, stdout, stderr) => {
 		if (error) {
 			console.error(`exec error: ${error}`);
 			return;
