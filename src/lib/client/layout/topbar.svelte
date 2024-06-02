@@ -37,7 +37,7 @@
 	<Separator orientation="vertical" class="m-5" />
 
 	<div class="space-x-4 lg:space-x-6">
-		<a href="/" class="text-sm font-medium transition-colors hover:text-primary"> Dashboard </a>
+		<a href="/" class="text-sm font-medium transition-colors hover:text-primary"> Insights </a>
 
 		<a
 			href="/transactions"

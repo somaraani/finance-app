@@ -1,29 +1,52 @@
-import { desc, eq, getTableColumns } from 'drizzle-orm';
-import { accounts, balances, instituations, userInstitutions } from '../../../schemas/schema';
-import { db } from '../util/db';
-import type { AccountBalance, AccountMedata } from '$lib/types';
-import type { AccountSubtype, AccountType } from 'plaid';
+import type { AccountBalance, AccountType } from '$lib/types';
 import type { UserInstitute } from '$lib/types/institutions.types';
-import { plaidClient } from '../util/plaid';
+import { and, desc, eq, getTableColumns } from 'drizzle-orm';
+import { accounts, balances, userInstitutions } from '../../../schemas/schema';
+import { db } from '../util/db';
 
 export class AccountsService {
+	static async createAccount(
+		userId: number,
+		accountName: string,
+		accountType: AccountType,
+		institutionName: string
+	) {
+		// Check if user institution exists
+		let [userInstitution] = await db
+			.select()
+			.from(userInstitutions)
+			.where(and(eq(userInstitutions.userId, userId), eq(userInstitutions.name, institutionName)));
+
+		// If user institution doesn't exist, create it
+		if (!userInstitution) {
+			[userInstitution] = await db
+				.insert(userInstitutions)
+				.values({ userId, name: institutionName })
+				.returning();
+		}
+
+		// Create account
+		await db.insert(accounts).values({
+			userId,
+			name: accountName,
+			type: accountType,
+			institutionId: userInstitution.id
+		});
+	}
+
 	static async getUserAccounts(userId: number) {
 		return db
 			.select({
 				...getTableColumns(accounts),
-				insitutionName: instituations.name
+				institutionName: userInstitutions.name
 			})
 			.from(accounts)
 			.where(eq(accounts.userId, userId))
-			.innerJoin(instituations, eq(instituations.id, accounts.institutionId));
+			.innerJoin(userInstitutions, eq(userInstitutions.id, accounts.institutionId));
 	}
 
 	static async getUserInstitutions(userId: number) {
-		return db
-			.select()
-			.from(userInstitutions)
-			.where(eq(userInstitutions.userId, userId))
-			.leftJoin(instituations, eq(instituations.id, userInstitutions.institutionId));
+		return db.select().from(userInstitutions).where(eq(userInstitutions.userId, userId));
 	}
 
 	static async getUserAccountsByInstitution(userId: number): Promise<UserInstitute[]> {
@@ -46,35 +69,6 @@ export class AccountsService {
 	}
 
 	/**
-	 * Returns an object mapping the plaid account ID to our internal account ID
-	 */
-	static async getPlaidAccountMap(userId: number) {
-		const dbAccounts = await db
-			.select({
-				...getTableColumns(accounts),
-				institutionName: instituations.name
-			})
-			.from(accounts)
-			.where(eq(accounts.userId, userId))
-			.innerJoin(instituations, eq(instituations.id, accounts.institutionId));
-
-		const accountIdMap: { [plaidId: string]: AccountMedata } = {};
-		for (const account of dbAccounts) {
-			if (!account.plaidAccountId) continue;
-			accountIdMap[account.plaidAccountId] = {
-				id: account.id,
-				institutionId: account.institutionId,
-				name: account.name,
-				type: account.type as AccountType,
-				subtype: account.subtype as AccountSubtype,
-				institutionName: account.institutionName
-			};
-		}
-
-		return accountIdMap;
-	}
-
-	/**
 	 * Updates the account balances for a user.
 	 * Use {@link getUserAccountBalances} to get most recent balances
 	 * @returns if any of the requests to plaid failed
@@ -84,36 +78,7 @@ export class AccountsService {
 		let failures = false;
 
 		for (const institution of query) {
-			const balancesResponse = await plaidClient.accountsBalanceGet({
-				access_token: institution.user_institutions.accessToken
-			});
-
-			// if the request fails, nothing to ad
-			if (balancesResponse.status !== 200) {
-				failures = true;
-				continue;
-			}
-
-			const accountsData = balancesResponse.data.accounts;
-
-			// need to get internal account id that maps to the plaid account id
-			const accountIdMap = await this.getPlaidAccountMap(userId);
-
-			await Promise.all(
-				accountsData.map(async (account) => {
-					const accountId = accountIdMap[account.account_id].id;
-					if (!accountId || !account.balances.current || !account.balances.iso_currency_code)
-						return;
-
-					await db.insert(balances).values({
-						userId,
-						accountId,
-						balance: account.balances.current,
-						currencyCode: account.balances.iso_currency_code,
-						timestamp: new Date()
-					});
-				})
-			);
+			// handle each connector
 		}
 
 		return { failures };
@@ -131,16 +96,53 @@ export class AccountsService {
 				balance: balances.balance,
 				lastUpdated: balances.timestamp,
 				type: accounts.type,
-				subtype: accounts.subtype,
-				institutionName: instituations.name,
-				institutionId: instituations.id
+				institutionName: userInstitutions.name,
+				institutionId: userInstitutions.id
 			})
 			.from(accounts)
-			.where(eq(balances.userId, userId))
-			.innerJoin(balances, eq(balances.accountId, accounts.id))
-			.innerJoin(instituations, eq(instituations.id, accounts.institutionId))
+			.where(eq(accounts.userId, userId))
+			.leftJoin(balances, eq(balances.accountId, accounts.id))
+			.innerJoin(userInstitutions, eq(userInstitutions.id, accounts.institutionId))
 			.orderBy(accounts.id, desc(balances.timestamp));
 
 		return result as AccountBalance[];
+	}
+
+	/**
+	 * Creates an account balance for the specified account ID with the given balance.
+	 * @param accountId - The ID of the account.
+	 * @param balance - The balance to set for the account.
+	 */
+	static async createAccountBalance(
+		userId: number,
+		accountId: number,
+		balance: number,
+		date: Date
+	) {
+		console.log(date);
+		const inserted = await db
+			.insert(balances)
+			.values({
+				userId,
+				accountId,
+				balance,
+				currencyCode: 'CAD', // TODO set a correct currency code
+				timestamp: date
+			})
+			.returning();
+		return { success: Boolean(inserted?.length) };
+	}
+
+	/**
+	 * Creates an account balance for the specified account ID with the given balance.
+	 * @param accountId - The ID of the account.
+	 * @param balance - The balance to set for the account.
+	 */
+	static async deleteAccount(userId: number, accountId: number) {
+		const deleted = await db
+			.delete(accounts)
+			.where(and(eq(accounts.id, accountId), eq(accounts.userId, userId)))
+			.returning();
+		return { success: Boolean(deleted?.length) };
 	}
 }

@@ -17,7 +17,7 @@
 			<Separator />
 			<Card.Content class="flex items-center py-3">
 				<div class="flex items-center gap-3 text-sm font-semibold">
-					<AccountsIcon type={account.type} subtype={account.subtype} />
+					<AccountsIcon type={account.type} />
 					<div>
 						<p class="font-medium text-muted-foreground">
 							{account.institutionName}

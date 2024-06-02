@@ -59,7 +59,7 @@
 				domainLine={false}
 			/>
 			<VisAxis type="y" {y} gridLine={false} tickLine={undefined} domainLine={false} />
-			<VisCrosshair template={spendingTooltipTemplate} color={crosshairPointColors} />
+			<VisCrosshair {x} {y} template={spendingTooltipTemplate} color={crosshairPointColors} />
 		</VisXYContainer>
 	{/if}
 </InsightCard>

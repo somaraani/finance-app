@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { dndzone } from 'svelte-dnd-action';
+	import { dndzone, type DndEvent } from 'svelte-dnd-action';
 	import AccountsCard from '$lib/client/app/accounts/accounts-card.svelte';
 	import NetworthChart from '$lib/client/app/assets/networth-chart.svelte';
 	import SpendingCategories from '$lib/client/app/spending/spending-categories.svelte';
@@ -14,17 +14,19 @@
 		{ id: 'accounts', component: AccountsCard }
 	];
 
+	type Item = (typeof items)[number];
+
 	let isEditing = false;
 
-	function handleDndConsider(e) {
+	function handleDndConsider(e: CustomEvent<DndEvent<Item>>) {
 		items = e.detail.items;
 	}
 
-	function handleDndFinalize(e) {
+	function handleDndFinalize(e: CustomEvent<DndEvent<Item>>) {
 		items = e.detail.items;
 	}
 
-	function deleteItem(id) {
+	function deleteItem(id: string) {
 		items = items.filter((item) => item.id !== id);
 	}
 </script>

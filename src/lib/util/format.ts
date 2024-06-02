@@ -23,6 +23,6 @@ export function getRelativeTime(date: Date | null | string): string {
 }
 
 export function formatMoney(value?: number) {
-	if (value === undefined) return '-';
+	if (value == undefined) return '-';
 	return value.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
 }

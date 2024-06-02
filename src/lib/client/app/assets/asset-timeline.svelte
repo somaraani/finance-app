@@ -20,14 +20,16 @@
 		VisXYContainer
 	} from '@unovis/svelte';
 
-	type NetworthData = (typeof $req)['data'];
 	type Row = ArrayType<AccountHistory['history']>;
 
 	let range: Ranges = 'month';
 	let data: AccountHistory['history'] = [];
+	let y: (((row: Row) => number | undefined) | 0)[];
 
 	$: req = trpc().assets.getTimeline.createQuery({ range });
 	$: data = $req.data?.history || data;
+
+	$: console.log(data);
 
 	$: items =
 		$req?.data?.accounts?.map((a, i) => ({
@@ -42,7 +44,7 @@
 			})
 		: [];
 
-	function toggleItem(item: BulletLegendItemInterface, i: number): void {
+	function toggleItem(_: unknown, i: number): void {
 		items[i].inactive = !items[i].inactive;
 		y = items.map((item, i) => (item.inactive ? 0 : y[i]));
 	}
@@ -76,7 +78,7 @@
 			tickLine={undefined}
 			domainLine={false}
 		/>
-		<VisCrosshair template={tooltipTemplate} color={crosshairPointColors} />
+		<VisCrosshair {x} {y} template={tooltipTemplate} color={crosshairPointColors} />
 	</VisXYContainer>
 	<div class="mt-8 flex justify-center">
 		<VisBulletLegend bulletSize="20px" {items} onLegendItemClick={toggleItem} />

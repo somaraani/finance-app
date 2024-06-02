@@ -16,7 +16,7 @@
 	$: items = data?.map((d) => ({ name: d.label })) ?? [];
 	$: totalAmount = data?.reduce((acc, cur) => acc + cur.value, 0);
 
-	const value = (d: ChartData) => d.value;
+	const value = (d: ChartData<number>) => d.value;
 </script>
 
 <Card.Root>

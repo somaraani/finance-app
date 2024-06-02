@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { AlertDialog as AlertDialogPrimitive } from 'bits-ui';
-	import { buttonVariants } from '$lib/components/ui/button/index.js';
 	import { cn } from '$lib/client/ui/utils.js.js';
+	import { buttonVariants } from '../button';
 
 	type $$Props = AlertDialogPrimitive.CancelProps;
 	type $$Events = AlertDialogPrimitive.CancelEvents;

@@ -79,7 +79,7 @@ export function tooltipTemplate(d: ChartData) {
 `;
 }
 
-export function spendingTooltipTemplate(d) {
+export function spendingTooltipTemplate(d: { last?: number; current?: number }) {
 	return `
 	<div class="rounded-lg border bg-background p-2 shadow-sm">
 	<div class="grid grid-cols-2 gap-4">
