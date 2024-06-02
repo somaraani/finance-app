@@ -1,8 +1,8 @@
 import { z } from 'zod';
 
-export type ChartData = {
+export type ChartData<T = any> = {
 	date: Date;
-	value: unknown;
+	value: T;
 };
 
 export const ranges = {

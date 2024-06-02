@@ -10,7 +10,7 @@ export class AccountsService {
 		accountName: string,
 		accountType: AccountType,
 		institutionName: string
-	) {		
+	) {
 		// Check if user institution exists
 		let [userInstitution] = await db
 			.select()
@@ -19,25 +19,26 @@ export class AccountsService {
 
 		// If user institution doesn't exist, create it
 		if (!userInstitution) {
-			[userInstitution] = await db.insert(userInstitutions).values({ userId, name: institutionName }).returning();
+			[userInstitution] = await db
+				.insert(userInstitutions)
+				.values({ userId, name: institutionName })
+				.returning();
 		}
 
 		// Create account
-		await db
-			.insert(accounts)
-			.values({
-				userId,
-				name: accountName,
-				type: accountType,
-				institutionId: userInstitution.id
-			})
+		await db.insert(accounts).values({
+			userId,
+			name: accountName,
+			type: accountType,
+			institutionId: userInstitution.id
+		});
 	}
 
 	static async getUserAccounts(userId: number) {
 		return db
 			.select({
 				...getTableColumns(accounts),
-				insitutionName: userInstitutions.name,
+				institutionName: userInstitutions.name
 			})
 			.from(accounts)
 			.where(eq(accounts.userId, userId))
@@ -45,10 +46,7 @@ export class AccountsService {
 	}
 
 	static async getUserInstitutions(userId: number) {
-		return db
-			.select()
-			.from(userInstitutions)
-			.where(eq(userInstitutions.userId, userId));
+		return db.select().from(userInstitutions).where(eq(userInstitutions.userId, userId));
 	}
 
 	static async getUserAccountsByInstitution(userId: number): Promise<UserInstitute[]> {
@@ -80,7 +78,7 @@ export class AccountsService {
 		let failures = false;
 
 		for (const institution of query) {
-			// handle each connector 
+			// handle each connector
 		}
 
 		return { failures };
@@ -102,11 +100,49 @@ export class AccountsService {
 				institutionId: userInstitutions.id
 			})
 			.from(accounts)
-			.where(eq(balances.userId, userId))
-			.innerJoin(balances, eq(balances.accountId, accounts.id))
+			.where(eq(accounts.userId, userId))
+			.leftJoin(balances, eq(balances.accountId, accounts.id))
 			.innerJoin(userInstitutions, eq(userInstitutions.id, accounts.institutionId))
 			.orderBy(accounts.id, desc(balances.timestamp));
 
 		return result as AccountBalance[];
+	}
+
+	/**
+	 * Creates an account balance for the specified account ID with the given balance.
+	 * @param accountId - The ID of the account.
+	 * @param balance - The balance to set for the account.
+	 */
+	static async createAccountBalance(
+		userId: number,
+		accountId: number,
+		balance: number,
+		date: Date
+	) {
+		console.log(date);
+		const inserted = await db
+			.insert(balances)
+			.values({
+				userId,
+				accountId,
+				balance,
+				currencyCode: 'CAD', // TODO set a correct currency code
+				timestamp: date
+			})
+			.returning();
+		return { success: Boolean(inserted?.length) };
+	}
+
+	/**
+	 * Creates an account balance for the specified account ID with the given balance.
+	 * @param accountId - The ID of the account.
+	 * @param balance - The balance to set for the account.
+	 */
+	static async deleteAccount(userId: number, accountId: number) {
+		const deleted = await db
+			.delete(accounts)
+			.where(and(eq(accounts.id, accountId), eq(accounts.userId, userId)))
+			.returning();
+		return { success: Boolean(deleted?.length) };
 	}
 }

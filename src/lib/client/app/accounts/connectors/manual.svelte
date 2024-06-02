@@ -1,14 +1,14 @@
 <script lang="ts">
+	import { browser } from '$app/environment';
 	import { Button } from '$lib/client/ui/button/index.js';
 	import { Input } from '$lib/client/ui/input/index.js';
 	import { Label } from '$lib/client/ui/label/index.js';
 	import * as Select from '$lib/client/ui/select/index.js';
 	import Spinner from '$lib/client/ui/spinner/spinner.svelte';
 	import { trpc } from '$lib/trpc/client';
-	import type { AccountType } from '$lib/types';
 
 	let accountName = '';
-	let accountType = '';
+	let accountType: any;
 	let institution = '';
 
 	const accountTypes = ['Checking', 'Savings', 'Credit Card'];
@@ -24,7 +24,7 @@
 	async function handleSubmit() {
 		await $mutation.mutate({
 			name: accountName,
-			type: accountType?.toLowerCase() as AccountType,
+			type: accountType?.toLowerCase(),
 			institutionName: institution
 		});
 	}

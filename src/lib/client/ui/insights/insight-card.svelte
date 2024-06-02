@@ -16,11 +16,15 @@
 		<slot name="filters" />
 	</Card.Header>
 	<Card.Content>
-		{#if current !== undefined}<div class="text-2xl font-bold">{formatMoney(current)}</div>{/if}
-		{#if text}<p class={cn('mt-2 text-sm', textClass)}>{text}</p>{/if}
-		<div class="insight">
-			<slot />
-		</div>
+		{#if loading}
+			<div>Loading...</div>
+		{:else}
+			{#if current !== undefined}<div class="text-2xl font-bold">{formatMoney(current)}</div>{/if}
+			{#if text}<p class={cn('mt-2 text-sm', textClass)}>{text}</p>{/if}
+			<div class="insight">
+				<slot />
+			</div>
+		{/if}
 	</Card.Content>
 </Card.Root>
 

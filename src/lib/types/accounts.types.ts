@@ -4,7 +4,6 @@ export type AccountMedata = {
 	id: number;
 	name: string;
 	type: AccountType;
-	subtype: AccountSubtype | null;
 	institutionId: number;
 	institutionName: string;
 };

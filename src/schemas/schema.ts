@@ -37,10 +37,9 @@ export const userInstitutions = schema.table('user_institutions', {
 	userId: integer('user_id')
 		.notNull()
 		.references(() => users.id),
-	name: text('name')
-		.notNull(), 
-	connectorMetadata: text('connector_metadata'), 
-	connectorType: text('connector_type'),
+	name: text('name').notNull(),
+	connectorMetadata: text('connector_metadata'),
+	connectorType: text('connector_type')
 });
 
 // TODO should we retain accounts & balances when institution is unlinked?
