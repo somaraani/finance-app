@@ -19,23 +19,23 @@
 </script>
 
 <Dialog.Root bind:open={dialogOpen} closeOnEscape={!loading} closeOnOutsideClick={!loading}>
-	<Button on:click={() => (dialogOpen = true)} variant="ghost">Unlink</Button>
+	<Button on:click={() => (dialogOpen = true)} variant="ghost">Delete</Button>
 	<Dialog.Content>
 		<Dialog.Header>
-			<Dialog.Title>Unlink {institute.name}?</Dialog.Title>
+			<Dialog.Title>Delete {institute.name}</Dialog.Title>
 			<Dialog.Description>
-				This action cannot be undone. This will permanently delete all data associated with this
-				account.
+				This action cannot be undone. This will permanently delete all accounts and data associated
+				with this institution.
 			</Dialog.Description>
 		</Dialog.Header>
 		<Dialog.Footer>
 			{#if loading}
 				<Button variant="secondary" disabled>
 					<Spinner />
-					Unlink
+					Delete
 				</Button>
 			{:else}
-				<Button on:click={onClick} variant="destructive">Unlink</Button>
+				<Button on:click={onClick} variant="destructive">Delete</Button>
 			{/if}
 		</Dialog.Footer>
 	</Dialog.Content>

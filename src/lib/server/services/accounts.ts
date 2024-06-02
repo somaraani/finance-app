@@ -1,6 +1,6 @@
-import type { AccountBalance, AccountType } from '$lib/types';
+import type { AccountBalance, AccountMedata, AccountType } from '$lib/types';
 import type { UserInstitute } from '$lib/types/institutions.types';
-import { and, desc, eq, getTableColumns } from 'drizzle-orm';
+import { and, desc, eq, getTableColumns, lte } from 'drizzle-orm';
 import { accounts, balances, userInstitutions } from '../../../schemas/schema';
 import { db } from '../util/db';
 
@@ -10,7 +10,7 @@ export class AccountsService {
 		accountName: string,
 		accountType: AccountType,
 		institutionName: string
-	) {
+	): Promise<AccountMedata> {
 		// Check if user institution exists
 		let [userInstitution] = await db
 			.select()
@@ -26,23 +26,43 @@ export class AccountsService {
 		}
 
 		// Create account
-		await db.insert(accounts).values({
-			userId,
-			name: accountName,
-			type: accountType,
+		const [newAccount] = await db
+			.insert(accounts)
+			.values({
+				userId,
+				name: accountName,
+				type: accountType,
+				institutionId: userInstitution.id
+			})
+			.returning();
+
+		return {
+			...newAccount,
+			institutionName,
 			institutionId: userInstitution.id
-		});
+		} as AccountMedata;
 	}
 
-	static async getUserAccounts(userId: number) {
-		return db
+	static async deleteInstitution(userId: number, institutionId: number) {
+		const deleted = await db
+			.delete(userInstitutions)
+			.where(and(eq(userInstitutions.id, institutionId), eq(userInstitutions.userId, userId)))
+			.returning();
+		return { success: Boolean(deleted?.length) };
+	}
+
+	static async getUserAccounts(userId: number): Promise<AccountMedata[]> {
+		const accs = await db
 			.select({
 				...getTableColumns(accounts),
+				institutionId: userInstitutions.id,
 				institutionName: userInstitutions.name
 			})
 			.from(accounts)
 			.where(eq(accounts.userId, userId))
 			.innerJoin(userInstitutions, eq(userInstitutions.id, accounts.institutionId));
+
+		return accs as AccountMedata[];
 	}
 
 	static async getUserInstitutions(userId: number) {
@@ -84,6 +104,25 @@ export class AccountsService {
 		return { failures };
 	}
 
+	static async getAccountBalance(
+		accountId: number,
+		date: Date = new Date()
+	): Promise<number | undefined> {
+		// Query the database for the most recent balance of the specified account before the specified date
+		const result = await db
+			.select({ balance: balances.balance })
+			.from(balances)
+			.where(and(eq(balances.accountId, accountId), lte(balances.timestamp, date)))
+			.orderBy(desc(balances.timestamp))
+			.limit(1);
+
+		if (result.length === 0) {
+			return undefined;
+		}
+
+		return result[0].balance;
+	}
+
 	/**
 	 * Returns the account balances for a user as stored in the database.
 	 * Use {@link syncAccountBalances} to update balances
@@ -119,7 +158,6 @@ export class AccountsService {
 		balance: number,
 		date: Date
 	) {
-		console.log(date);
 		const inserted = await db
 			.insert(balances)
 			.values({
@@ -129,6 +167,31 @@ export class AccountsService {
 				currencyCode: 'CAD', // TODO set a correct currency code
 				timestamp: date
 			})
+			.returning();
+		return { success: Boolean(inserted?.length) };
+	}
+
+	/**
+	 * Creates an account balance for the specified account ID with the given balance.
+	 * @param accountId - The ID of the account.
+	 * @param balance - The balance to set for the account.
+	 */
+	static async createAccountBalances(
+		userId: number,
+		accountId: number,
+		data: { balance: number; date: Date }[]
+	) {
+		const inserted = await db
+			.insert(balances)
+			.values(
+				data.map(({ balance, date }) => ({
+					userId,
+					accountId,
+					balance,
+					currencyCode: 'CAD', // TODO set a correct currency code
+					timestamp: date
+				}))
+			)
 			.returning();
 		return { success: Boolean(inserted?.length) };
 	}

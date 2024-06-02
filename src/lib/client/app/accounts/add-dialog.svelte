@@ -37,8 +37,8 @@
 
 <Dialog.Root onOpenChange={onModalClose}>
 	<Dialog.Trigger>
-		<Button variant="link">
-			<NewIcon />Add New
+		<Button variant="secondary">
+			<NewIcon />Add Account
 		</Button>
 	</Dialog.Trigger>
 	<Dialog.Content>

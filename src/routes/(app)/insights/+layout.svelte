@@ -6,7 +6,7 @@
 	import SpendingIcon from 'lucide-svelte/icons/hand-coins';
 </script>
 
-<div class="-m-6 flex h-full flex-row">
+<div class="extra-margin -m-6 flex h-full flex-row">
 	<div class="w-1/6 p-2">
 		<Button href="/insights" class="w-full justify-start" variant="ghost"
 			><DashboardIcon />Dashboard</Button
@@ -19,7 +19,7 @@
 		>
 	</div>
 	<Separator orientation="vertical" />
-	<div class="w-full space-y-6 p-8">
+	<div class="w-full space-y-6 overflow-y-auto p-8">
 		<slot />
 	</div>
 </div>
@@ -40,5 +40,10 @@
 		--vis-donut-central-label-font-weight: 700;
 		--vis-donut-central-sub-label-font-size: 1em;
 		--vis-font-family: inherit;
+	}
+
+	/* counter acts the padding from the parent layout */
+	.extra-margin {
+		height: calc(100% + 3rem);
 	}
 </style>
