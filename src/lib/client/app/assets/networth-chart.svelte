@@ -24,7 +24,7 @@
 
 	$: current = data?.length ? data[data.length - 1].value : 0;
 	$: delta = data?.length ? data[data.length - 1].value - data[0].value : 0;
-	$: deltaText = `${delta > 0 ? '+' : ''}${formatMoney(delta)} since ${rangeText[range]}`;
+	$: deltaText = `${delta > 0 ? '+' : ''}${formatMoney(delta)} ${rangeText[range]}`;
 	$: deltaClass = delta > 0 ? 'text-green-500' : 'text-red-500';
 
 	const y = [(row: Row) => row.value];

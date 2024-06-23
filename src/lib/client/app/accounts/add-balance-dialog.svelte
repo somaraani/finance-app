@@ -30,6 +30,12 @@
 		loading = false;
 		dialogOpen = false;
 	}
+
+	function handleKeyPress(event: KeyboardEvent) {
+		if (event.key === 'Enter') {
+			handleSubmit();
+		}
+	}
 </script>
 
 <Dialog.Root bind:open={dialogOpen} closeOnEscape={!loading} closeOnOutsideClick={!loading}>
@@ -44,11 +50,24 @@
 		<div class="flex flex-col gap-4">
 			<div class="flex flex-col space-y-1.5">
 				<Label for="balance">Balance</Label>
-				<Input type="number" bind:value={balance} placeholder="Account Balance" required />
+				<Input
+					type="number"
+					bind:value={balance}
+					placeholder="Account Balance"
+					required
+					on:keypress={handleKeyPress}
+				/>
 			</div>
 			<div class="flex flex-col space-y-1.5">
 				<Label for="date">Transaction Date</Label>
-				<Input type="date" id="date" bind:value={date} placeholder="Date" required />
+				<Input
+					type="date"
+					id="date"
+					bind:value={date}
+					placeholder="Date"
+					required
+					on:keypress={handleKeyPress}
+				/>
 			</div>
 		</div>
 

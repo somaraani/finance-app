@@ -11,6 +11,17 @@ export const load: PageServerLoad = async (event) => {
 };
 
 export const actions: Actions = {
+	deleteInstitution: async (event) => {
+		const request = await event.request.json();
+		const result = await AccountsService.deleteInstitution(
+			event.locals.user.id,
+			request.institutionId
+		).catch((e) => {
+			console.error(e);
+			return { success: false, error: e.message };
+		});
+		return result;
+	},
 	deleteAccount: async (event) => {
 		const request = await event.request.json();
 		const result = await AccountsService.deleteAccount(

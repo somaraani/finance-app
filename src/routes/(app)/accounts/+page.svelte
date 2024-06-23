@@ -1,16 +1,17 @@
 <script lang="ts">
-	import Button from '$lib/client/ui/button/button.svelte';
 	import * as Card from '$lib/client/ui/card';
 	import { getRelativeTime, pageAction } from '$lib/util';
 	import { toast } from 'svelte-sonner';
 	import type { ActionData } from './$types';
 	import AccountsIcon from '$lib/client/app/accounts/accounts-icon.svelte';
-	import UnlinkDialog from '$lib/client/app/accounts/unlink-dialog.svelte';
 	import { Separator } from '$lib/client/ui/separator';
 	import AddDialog from '$lib/client/app/accounts/add-dialog.svelte';
 	import AddBalanceDialog from '$lib/client/app/accounts/add-balance-dialog.svelte';
 	import DeleteAccountDialog from '$lib/client/app/accounts/delete-account-dialog.svelte';
 	import { invalidate } from '$app/navigation';
+	import ImportDialog from '$lib/client/app/imports/import-dialog.svelte';
+	import DeleteInstitutionDialog from '$lib/client/app/accounts/delete-institution-dialog.svelte';
+	import type { UserInstitute } from '$lib/types/institutions.types';
 
 	export let data;
 
@@ -34,23 +35,26 @@
 		invalidate('data:now');
 	}
 
-	async function unlink(institutionId: number) {
-		const result = await pageAction<ActionData>('?/unlinkItem', { institutionId });
+	async function deleteInstitution(institute: UserInstitute) {
+		const result = await pageAction<ActionData>('?/deleteInstitution', {
+			institutionId: institute.id
+		});
 		if (!result?.success) {
-			toast.error('Failed to unlink account', {
+			toast.error('Failed to delete institution', {
 				description: result?.error
 			});
 		} else {
-			toast.success('Successfully unlinked account');
+			toast.success(`Successfully deleted institution ${institute.name}`);
 		}
 		invalidate('data:now');
 	}
 </script>
 
-<div class="flex">
-	<h2 class="mb-6 text-3xl font-bold tracking-tight">Linked Accounts</h2>
-	<div class="ml-auto">
+<div class="mb-6 flex items-center">
+	<h2 class="text-3xl font-bold tracking-tight">Linked Accounts</h2>
+	<div class="ml-auto flex items-center gap-4">
 		<AddDialog />
+		<ImportDialog />
 	</div>
 </div>
 <div>
@@ -65,7 +69,7 @@
 						<p class="text-sm text-muted-foreground">
 							Last upated {getRelativeTime(institute.accounts[0].lastUpdated)}
 						</p>
-						<UnlinkDialog onSubmit={() => unlink(institute.id)} {institute} />
+						<DeleteInstitutionDialog onSubmit={() => deleteInstitution(institute)} {institute} />
 					</div>
 				</Card.Header>
 				<Separator />

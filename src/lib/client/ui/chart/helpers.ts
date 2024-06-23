@@ -40,9 +40,18 @@ export function lineColors<T>(_: T, i: number) {
 		'#f4b83e',
 		'#ff6b7e',
 		'#a6cc74',
-		'#a6cc74',
-		'#00c19a',
-		'#6859be'
+		'#FF5733',
+		'#FFC0CB',
+		'#008080',
+		'#800080',
+		'#ADD8E6',
+		'#E6E6FA',
+		'#F08080',
+		'#FA8072',
+		'#90EE90',
+		'#D3D3D3',
+		'#FFB6C1',
+		'#FFFFE0'
 	][i];
 }
 

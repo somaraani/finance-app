@@ -60,11 +60,21 @@ export class AssetsService {
 			return;
 		}
 
-		// Sort the networths by date and get the most recent and oldest
+		// we need to know the last know value for each account
+		let startingValues: number[] | undefined;
+		if (startDate) {
+			startingValues = await Promise.all(
+				userAccounts.map(async (account) => {
+					const lastValue = await AccountsService.getAccountBalance(account.id, startDate);
+					return lastValue ?? 0;
+				})
+			);
+		}
+
 		let lastValues = new Array(userAccounts.length).fill(undefined);
 
 		// Sorts the history by date and fills in any missing days for an account with the last known value
-		const sortedHistory = [...history.entries()]
+		let sortedHistory = [...history.entries()]
 			.sort((a, b) => a[0] - b[0])
 			.map(([date, value]) => ({
 				date: new Date(date),
@@ -72,19 +82,23 @@ export class AssetsService {
 					if (item !== undefined) {
 						lastValues[index] = item;
 					}
-					return item !== undefined ? item : lastValues[index] ?? 0;
+					return item !== undefined
+						? item
+						: lastValues[index] ?? (startingValues ? startingValues[index] : 0);
 				})
 			}));
 
-		const lastZero = new Date(sortedHistory[0].date);
-
-		lastZero.setDate(sortedHistory[0].date.getDate() - 1);
+		const last = new Date(sortedHistory[0].date);
+		last.setDate(sortedHistory[0].date.getDate() - 1);
 
 		if (startDate && sortedHistory[0].date > startDate) {
-			sortedHistory.unshift(
-				{ date: startDate, value: new Array(userAccounts.length).fill(0) },
-				{ date: lastZero, value: new Array(userAccounts.length).fill(0) }
-			);
+			let currentDate = new Date(startDate);
+			let newEntries = [];
+			while (currentDate <= last) {
+				newEntries.push({ date: new Date(currentDate), value: startingValues! });
+				currentDate.setDate(currentDate.getDate() + 1);
+			}
+			sortedHistory = newEntries.concat(sortedHistory);
 		}
 
 		return {

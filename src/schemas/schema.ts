@@ -36,7 +36,9 @@ export const userInstitutions = schema.table('user_institutions', {
 	id: serial('id').primaryKey(),
 	userId: integer('user_id')
 		.notNull()
-		.references(() => users.id),
+		.references(() => users.id, {
+			onDelete: 'cascade'
+		}),
 	name: text('name').notNull(),
 	connectorMetadata: text('connector_metadata'),
 	connectorType: text('connector_type')
@@ -48,10 +50,14 @@ export const accounts = schema.table('accounts', {
 	id: serial('id').primaryKey(),
 	institutionId: integer('institution_id')
 		.notNull()
-		.references(() => userInstitutions.id),
+		.references(() => userInstitutions.id, {
+			onDelete: 'cascade'
+		}),
 	userId: integer('user_id')
 		.notNull()
-		.references(() => users.id),
+		.references(() => users.id, {
+			onDelete: 'cascade'
+		}),
 	name: text('name').notNull(),
 	connectorMetadata: text('connector_metadata'),
 	type: text('type').notNull()
