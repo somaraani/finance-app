@@ -63,6 +63,7 @@
 		"pino-pretty": "^11.1.0",
 		"plaid": "^24.0.0",
 		"postgres": "^3.4.4",
+		"questrade": "^2.1.0",
 		"superjson": "^2.2.1",
 		"svelte-dnd-action": "^0.9.48",
 		"svelte-radix": "^1.1.0",

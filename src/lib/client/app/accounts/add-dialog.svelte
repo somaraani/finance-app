@@ -4,13 +4,14 @@
 	import ManualIcon from 'lucide-svelte/icons/file-up';
 	import PlaidIcon from 'lucide-svelte/icons/cloud';
 	import Manual from './connectors/manual.svelte';
+	import Questrade from './connectors/questrade.svelte';
 	import NewIcon from 'lucide-svelte/icons/plus';
 	import Button from '$lib/client/ui/button/button.svelte';
-
+	import { invalidate } from '$app/navigation';
+	import { toast } from 'svelte-sonner';
 	let selectedConnector:
 		| { title: any; component: any; description?: string; icon?: typeof ManualIcon }
 		| undefined = undefined;
-
 	const connectors = [
 		{
 			title: 'Manual',
@@ -20,24 +21,36 @@
 			component: Manual
 		},
 		{
-			title: 'Plaid',
-			description: 'Use Plaid to connect your accounts.',
-			icon: PlaidIcon,
-			component: Manual
+			title: 'Questrade',
+			description: 'Use Questrade to connect your accounts.', // Provide a suitable description
+			icon: PlaidIcon, // Use the appropriate icon
+			component: Questrade
 		}
 	];
 
+	let isOpen = false;
+
+	const onConnect = () => {
+		isOpen = false;
+		toast.success('Account added successfully');
+		invalidate('data:now');
+	};
+
+	const openDialog = () => {
+		isOpen = true;
+	};
+
 	// Function to reset selectedConnector
-	const onModalClose = (open: boolean) => {
+	const onOpenChange = (open: boolean) => {
 		if (!open) {
 			selectedConnector = undefined;
 		}
 	};
 </script>
 
-<Dialog.Root onOpenChange={onModalClose}>
+<Dialog.Root open={isOpen} {onOpenChange}>
 	<Dialog.Trigger>
-		<Button variant="secondary">
+		<Button variant="secondary" on:click={openDialog}>
 			<NewIcon />Add Account
 		</Button>
 	</Dialog.Trigger>
@@ -79,7 +92,7 @@
 					{selectedConnector.title}
 				</Card.Title>
 			</Dialog.Header>
-			<svelte:component this={selectedConnector.component} />
+			<svelte:component this={selectedConnector.component} {onConnect} />
 		{/if}
 	</Dialog.Content>
 </Dialog.Root>

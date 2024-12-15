@@ -67,13 +67,17 @@ export class ImportService {
 			);
 
 			if (!account) {
+				const institution = await AccountsService.getOrCreateUserInstitution(
+					userId,
+					institutionName
+				);
 				account = await AccountsService.createAccount(
 					userId,
+					institution.id,
 					accountName,
 					ImportService.getAccountTypeFromName(accountName) ||
 						ImportService.getAccountTypeFromName(institutionName) ||
-						'investment',
-					institutionName
+						'investment'
 				);
 			}
 

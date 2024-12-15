@@ -12,7 +12,7 @@
 	let loading = false;
 	let dialogOpen = false;
 
-	let balance = 0;
+	let balance = '0';
 	let date = new Date().toISOString().split('T')[0]; // Default to today's date
 
 	async function handleSubmit() {
@@ -26,7 +26,8 @@
 			now.getSeconds(),
 			now.getMilliseconds()
 		);
-		await onSubmit(balance, selectedDate);
+		const parsedBalance = parseFloat(balance.replace(',', '').trim());
+		await onSubmit(parsedBalance, selectedDate);
 		loading = false;
 		dialogOpen = false;
 	}
@@ -51,7 +52,6 @@
 			<div class="flex flex-col space-y-1.5">
 				<Label for="balance">Balance</Label>
 				<Input
-					type="number"
 					bind:value={balance}
 					placeholder="Account Balance"
 					required

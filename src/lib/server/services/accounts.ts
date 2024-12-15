@@ -3,26 +3,24 @@ import type { UserInstitute } from '$lib/types/institutions.types';
 import { and, desc, eq, getTableColumns, lte } from 'drizzle-orm';
 import { accounts, balances, userInstitutions } from '../../../schemas/schema';
 import { db } from '../util/db';
+import { ConnectorsService } from './connectors';
 
 export class AccountsService {
 	static async createAccount(
 		userId: number,
+		institutionId: number,
 		accountName: string,
 		accountType: AccountType,
-		institutionName: string
+		connectorMetadata?: any
 	): Promise<AccountMedata> {
 		// Check if user institution exists
-		let [userInstitution] = await db
+		const [userInstitution] = await db
 			.select()
 			.from(userInstitutions)
-			.where(and(eq(userInstitutions.userId, userId), eq(userInstitutions.name, institutionName)));
+			.where(eq(userInstitutions.id, institutionId));
 
-		// If user institution doesn't exist, create it
 		if (!userInstitution) {
-			[userInstitution] = await db
-				.insert(userInstitutions)
-				.values({ userId, name: institutionName })
-				.returning();
+			throw new Error('User institution not found');
 		}
 
 		// Create account
@@ -30,15 +28,16 @@ export class AccountsService {
 			.insert(accounts)
 			.values({
 				userId,
+				institutionId,
 				name: accountName,
 				type: accountType,
-				institutionId: userInstitution.id
+				connectorMetadata: JSON.stringify(connectorMetadata || '{}')
 			})
 			.returning();
 
 		return {
 			...newAccount,
-			institutionName,
+			institutionName: userInstitution.name,
 			institutionId: userInstitution.id
 		} as AccountMedata;
 	}
@@ -67,6 +66,66 @@ export class AccountsService {
 
 	static async getUserInstitutions(userId: number) {
 		return db.select().from(userInstitutions).where(eq(userInstitutions.userId, userId));
+	}
+
+	static async getInstitutionById(userId: number, institutionId: number) {
+		const [institution] = await db
+			.select()
+			.from(userInstitutions)
+			.where(and(eq(userInstitutions.userId, userId), eq(userInstitutions.id, institutionId)));
+
+		return institution;
+	}
+
+	static async getInstitutionAccounts(userId: number, institutionId: number) {
+		return db
+			.select()
+			.from(accounts)
+			.where(and(eq(accounts.userId, userId), eq(accounts.institutionId, institutionId)));
+	}
+
+	static async getOrCreateUserInstitution(userId: number, institutionName: string) {
+		let institution = await AccountsService.findInstitutionByName(userId, institutionName);
+		if (!institution) {
+			institution = await AccountsService.createInstitution(userId, institutionName, 'manual');
+		}
+		return institution;
+	}
+
+	static async findInstitutionByName(userId: number, name: string) {
+		const results = await db
+			.selectDistinct()
+			.from(userInstitutions)
+			.where(and(eq(userInstitutions.userId, userId), eq(userInstitutions.name, name)));
+		return results.length >= 1 ? results[0] : undefined;
+	}
+
+	static async updateInstitutionMetadata(institutionId: number, metadata: object) {
+		const updated = await db
+			.update(userInstitutions)
+			.set({ connectorMetadata: JSON.stringify(metadata) })
+			.where(eq(userInstitutions.id, institutionId))
+			.returning();
+		return { success: Boolean(updated?.length) };
+	}
+
+	static async createInstitution(
+		userId: number,
+		name: string,
+		connectorType: string,
+		connectorMetadata?: any
+	) {
+		const [newInstitution] = await db
+			.insert(userInstitutions)
+			.values({
+				userId,
+				name,
+				connectorType,
+				connectorMetadata: JSON.stringify(connectorMetadata || '{}')
+			})
+			.returning();
+
+		return newInstitution;
 	}
 
 	static async getUserAccountsByInstitution(userId: number): Promise<UserInstitute[]> {
@@ -98,7 +157,12 @@ export class AccountsService {
 		let failures = false;
 
 		for (const institution of query) {
-			// handle each connector
+			if (institution.connectorType !== 'manual') {
+				await ConnectorsService.updateAccountBalances(userId, institution.id).catch((err) => {
+					console.error(err);
+					failures = true;
+				});
+			}
 		}
 
 		return { failures };

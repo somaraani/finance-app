@@ -1,5 +1,5 @@
 import { AccountsService } from '$lib/server/services/accounts';
-import { TransactionsService } from '$lib/server/services/transactions';
+import { ConnectorsService, type ConnectorType } from '$lib/server/services/connectors';
 import { z } from 'zod';
 import { t } from '../t';
 
@@ -13,6 +13,22 @@ export const accountsRouter = t.router({
 		const result = await AccountsService.syncAccountBalances(userId);
 		return result;
 	}),
+	connectToInstitution: t.procedure
+		.input(
+			z.object({
+				connector: z.string(),
+				metadata: z.any()
+			})
+		)
+		.mutation(async ({ ctx, input }) => {
+			const userId = ctx.event.locals.user.id;
+			await ConnectorsService.initializeConnector(
+				userId,
+				input.connector as ConnectorType,
+				input.metadata
+			);
+			return { success: true };
+		}),
 	createAccount: t.procedure
 		.input(
 			z.object({
@@ -23,14 +39,15 @@ export const accountsRouter = t.router({
 		)
 		.mutation(async ({ ctx, input }) => {
 			const userId = ctx.event.locals.user.id;
-			await AccountsService.createAccount(
+			const institution = await AccountsService.getOrCreateUserInstitution(
 				userId,
-				input.name,
-				input.type,
 				input.institutionName
-			).catch((err) => {
-				console.log(err);
-			});
+			);
+			await AccountsService.createAccount(userId, institution.id, input.name, input.type).catch(
+				(err) => {
+					console.log(err);
+				}
+			);
 			return { success: true };
 		})
 });

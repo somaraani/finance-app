@@ -1,11 +1,12 @@
 <script lang="ts">
-	import { browser } from '$app/environment';
 	import { Button } from '$lib/client/ui/button/index.js';
 	import { Input } from '$lib/client/ui/input/index.js';
 	import { Label } from '$lib/client/ui/label/index.js';
 	import * as Select from '$lib/client/ui/select/index.js';
 	import Spinner from '$lib/client/ui/spinner/spinner.svelte';
 	import { trpc } from '$lib/trpc/client';
+
+	export let onConnect: () => void;
 
 	let accountName = '';
 	let accountType: any;
@@ -22,11 +23,12 @@
 	const mutation = trpc().accounts.createAccount.createMutation();
 
 	async function handleSubmit() {
-		await $mutation.mutate({
+		await $mutation.mutateAsync({
 			name: accountName,
 			type: accountType?.toLowerCase(),
 			institutionName: institution
 		});
+		onConnect();
 	}
 </script>
 
