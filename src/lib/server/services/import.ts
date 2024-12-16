@@ -2,6 +2,7 @@ import csv from 'csv-parser';
 import { Readable } from 'stream';
 import { AccountsService } from './accounts';
 import type { AccountMedata, AccountType } from '$lib/types';
+import { UsersService } from './users';
 
 export class ImportService {
 	static async getAccountsFromCSV(files: { name: string; content: string }[]): Promise<string[]> {
@@ -53,6 +54,7 @@ export class ImportService {
 
 	static async importBalances(userId: number, files: { name: string; content: string }[]) {
 		const userAccounts = await AccountsService.getUserAccounts(userId);
+		const userCurrency = await UsersService.getUserCurrency(userId);
 
 		for (const file of files) {
 			const { content, name } = file;
@@ -77,7 +79,8 @@ export class ImportService {
 					accountName,
 					ImportService.getAccountTypeFromName(accountName) ||
 						ImportService.getAccountTypeFromName(institutionName) ||
-						'investment'
+						'investment',
+					userCurrency
 				);
 			}
 

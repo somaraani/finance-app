@@ -217,16 +217,15 @@ export class AccountsService {
 
 		const accountBalances = await Promise.all(
 			result.map(async (account) => {
-				const convertedBalance =
+				const balanceInSelectedCurrency =
 					account.balance && account.currencyCode !== userCurrency
-						? account.balance *
-							(await ExchangeService.getExchangeRate(account.currencyCode, userCurrency!))
+						? await ExchangeService.getExchangeRate(account.currencyCode, userCurrency!)
 						: account.balance;
 
 				return {
 					...account,
 					balance: { value: account.balance, currency: account.currencyCode },
-					convertedBalance: { value: convertedBalance, currency: userCurrency }
+					convertedBalance: { value: balanceInSelectedCurrency, currency: userCurrency }
 				};
 			})
 		);

@@ -1,4 +1,5 @@
 import { AccountsService } from '$lib/server/services/accounts';
+import { ExportService } from '$lib/server/services/export';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async (event) => {
@@ -45,5 +46,10 @@ export const actions: Actions = {
 			return { success: false, error: e.message };
 		});
 		return result;
+	},
+	export: async (event) => {
+		const zipContent = await ExportService.exportUserAssetHistory(event.locals.user.id);
+		const base64Data = zipContent.toString('base64');
+		return base64Data;
 	}
 };

@@ -3,7 +3,7 @@ import { users } from '../../../schemas/schema';
 import { eq } from 'drizzle-orm';
 
 export class UsersService {
-	static async getUserCurrency(userId: number): Promise<string | undefined> {
+	static async getUserCurrency(userId: number): Promise<string> {
 		const result = await db
 			.select({ currency: users.currency })
 			.from(users)

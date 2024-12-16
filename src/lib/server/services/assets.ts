@@ -22,7 +22,7 @@ export class AssetsService {
 		};
 	}
 
-	static async getAssetTimeline(userId: number, range: Ranges): Promise<AccountHistory> {
+	static async getAssetTimeline(userId: number, range: Ranges = 'all'): Promise<AccountHistory> {
 		const userAccounts = await AccountsService.getUserAccounts(userId);
 		const history = new Map<number, number[]>();
 

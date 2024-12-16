@@ -12,6 +12,8 @@
 	import ImportDialog from '$lib/client/app/imports/import-dialog.svelte';
 	import DeleteInstitutionDialog from '$lib/client/app/accounts/delete-institution-dialog.svelte';
 	import type { UserInstitute } from '$lib/types/institutions.types';
+	import ExportIcon from 'lucide-svelte/icons/file-up';
+	import Button from '$lib/client/ui/button/button.svelte';
 
 	export let data;
 
@@ -48,6 +50,36 @@
 		}
 		invalidate('data:now');
 	}
+
+	async function exportData() {
+		const response = await fetch('?/export', {
+			method: 'POST',
+			body: JSON.stringify({})
+		});
+
+		const result = await response.json();
+		if (!response.ok) {
+			toast.error('Failed to export data');
+			return;
+		}
+
+		const base64Data = JSON.parse(result.data)[0]; // Parse the JSON string and get the base64 data
+		const binaryString = atob(base64Data);
+		const len = binaryString.length;
+		const bytes = new Uint8Array(len);
+		for (let i = 0; i < len; i++) {
+			bytes[i] = binaryString.charCodeAt(i);
+		}
+		const blob = new Blob([bytes], { type: 'application/zip' });
+		const url = window.URL.createObjectURL(blob);
+		const a = document.createElement('a');
+		a.href = url;
+		a.download = 'exported_data.zip';
+		document.body.appendChild(a);
+		a.click();
+		a.remove();
+		window.URL.revokeObjectURL(url);
+	}
 </script>
 
 <div class="mb-6 flex items-center">
@@ -55,6 +87,9 @@
 	<div class="ml-auto flex items-center gap-4">
 		<AddDialog />
 		<ImportDialog />
+		<Button on:click={exportData} variant="secondary">
+			<ExportIcon />Export Data
+		</Button>
 	</div>
 </div>
 <div>
