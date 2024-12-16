@@ -89,7 +89,7 @@
 									{:else}
 										-
 									{/if}
-									</p>
+								</p>
 								<AddBalanceDialog
 									accountName={account.name}
 									onSubmit={(balance, date) => addBalance(account.id, balance, date)}
