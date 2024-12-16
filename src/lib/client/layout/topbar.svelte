@@ -15,11 +15,12 @@
 	import { invalidate } from '$app/navigation';
 	import * as Select from '$lib/client/ui/select/index.js';
 	import { currencies } from '$lib/types/currencies';
+	import type { Selected } from 'bits-ui';
 
 	export let user: User;
 
 	let refreshState: 'idle' | 'loading' | 'success' | 'error' = 'idle';
-	let selectedCurrency = { value: user.currency, label: user.currency }; // Default currency
+	let selectedCurrency: Selected<string> = { value: user.currency, label: user.currency }; // Default currency
 
 	async function refreshData() {
 		refreshState = 'loading';
@@ -33,7 +34,8 @@
 		}
 	}
 
-	async function handleCurrencyChange(currency) {
+	async function handleCurrencyChange(currency: Selected<string> | undefined) {
+		if (!currency) return;
 		selectedCurrency = currency;
 		// Save the selected currency to the user's preferences
 		await trpc().createUtils().client.users.setUserCurrency.mutate({ currency: currency.value });
@@ -79,7 +81,7 @@
 			{/if}
 		</Button>
 
-		<Select.Root selected={selectedCurrency} on:change={handleCurrencyChange} required>
+		<Select.Root selected={selectedCurrency} onSelectedChange={handleCurrencyChange} required>
 			<Select.Trigger>
 				<Select.Value />
 			</Select.Trigger>

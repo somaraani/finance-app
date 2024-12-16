@@ -51,7 +51,8 @@ const authHandle: Handle = async ({ event, resolve }) => {
 			id: users.id,
 			username: users.username,
 			firstname: users.firstname,
-			lastname: users.lastname
+			lastname: users.lastname,
+			currency: users.currency
 		})
 		.from(users)
 		.where(eq(users.id, user.id));
