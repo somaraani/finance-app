@@ -4,22 +4,29 @@ import { SQL, and, eq, gte } from 'drizzle-orm';
 import { balances } from '../../../schemas/schema';
 import { db } from '../util/db';
 import { AccountsService } from './accounts';
+import { UsersService } from './users';
+import { ExchangeService } from './exchange';
 
 export class AssetsService {
 	static async getNetworthData(userId: number, range: Ranges): Promise<NetworthData | undefined> {
 		const assets = await this.getAssetTimeline(userId, range);
-		return assets?.history.map((d) => ({
-			...d,
+
+		const data = assets.history.map((d) => ({
+			date: d.date,
 			value: d.value.reduce((a, b) => a + b, 0)
 		}));
+
+		return {
+			currency: assets.currency,
+			data
+		};
 	}
 
-	static async getAssetTimeline(
-		userId: number,
-		range: Ranges
-	): Promise<AccountHistory | undefined> {
+	static async getAssetTimeline(userId: number, range: Ranges): Promise<AccountHistory> {
 		const userAccounts = await AccountsService.getUserAccounts(userId);
 		const history = new Map<number, number[]>();
+
+		const userCurrency = (await UsersService.getUserCurrency(userId)) ?? 'CAD';
 
 		const { startDate } = getDatesFromRange(range);
 		const filter: SQL[] = [];
@@ -35,12 +42,15 @@ export class AssetsService {
 					.from(balances)
 					.where(and(eq(balances.accountId, account.id), ...filter));
 
+				const accountCurrency = account.currencyCode;
+				const exchangeRate = await ExchangeService.getExchangeRate(accountCurrency, userCurrency);
+
 				const accountMap = new Map<string, number>();
 
 				// get the account balances for each day
 				accountBalances.forEach((balance) => {
 					const day = new Date(balance.timestamp).toLocaleDateString();
-					accountMap.set(day, balance.balance);
+					accountMap.set(day, balance.balance * exchangeRate);
 				});
 
 				// add each days most recent balance to the networth chart
@@ -57,7 +67,11 @@ export class AssetsService {
 		);
 
 		if (history.size === 0) {
-			return;
+			return {
+				currency: userCurrency,
+				accounts: [],
+				history: []
+			};
 		}
 
 		// we need to know the last know value for each account
@@ -66,7 +80,11 @@ export class AssetsService {
 			startingValues = await Promise.all(
 				userAccounts.map(async (account) => {
 					const lastValue = await AccountsService.getAccountBalance(account.id, startDate);
-					return lastValue ?? 0;
+					const exchangeRate = await ExchangeService.getExchangeRate(
+						account.currencyCode,
+						userCurrency
+					);
+					return lastValue ? lastValue * exchangeRate : 0;
 				})
 			);
 		}
@@ -103,7 +121,8 @@ export class AssetsService {
 
 		return {
 			accounts: userAccounts as AccountMedata[],
-			history: sortedHistory
+			history: sortedHistory,
+			currency: userCurrency
 		};
 	}
 }

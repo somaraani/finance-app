@@ -217,15 +217,16 @@ export class AccountsService {
 
 		const accountBalances = await Promise.all(
 			result.map(async (account) => {
-				const balanceInSelectedCurrency =
-					account.currencyCode !== userCurrency
-						? await ExchangeService.getExchangeRate(account.currencyCode, userCurrency!)
+				const convertedBalance =
+					account.balance && account.currencyCode !== userCurrency
+						? account.balance *
+							(await ExchangeService.getExchangeRate(account.currencyCode, userCurrency!))
 						: account.balance;
 
 				return {
 					...account,
 					balance: { value: account.balance, currency: account.currencyCode },
-					convertedBalance: { value: balanceInSelectedCurrency, currency: userCurrency }
+					convertedBalance: { value: convertedBalance, currency: userCurrency }
 				};
 			})
 		);
@@ -281,9 +282,9 @@ export class AccountsService {
 	}
 
 	/**
-	 * Creates an account balance for the specified account ID with the given balance.
+	 * Deletes an account for the specified user ID and account ID.
+	 * @param userId - The ID of the user.
 	 * @param accountId - The ID of the account.
-	 * @param balance - The balance to set for the account.
 	 */
 	static async deleteAccount(userId: number, accountId: number) {
 		const deleted = await db

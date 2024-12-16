@@ -39,7 +39,8 @@
 		selectedCurrency = currency;
 		// Save the selected currency to the user's preferences
 		await trpc().createUtils().client.users.setUserCurrency.mutate({ currency: currency.value });
-		refreshData();
+		trpc().createUtils().invalidate();
+		invalidate('data:now');
 	}
 </script>
 

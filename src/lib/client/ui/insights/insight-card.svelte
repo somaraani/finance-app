@@ -22,7 +22,10 @@
 		{:else}
 			{#if current !== undefined}
 				<div class="text-2xl font-bold">
-					{formatMoney(current)} {currencyCode}
+					{formatMoney(current)}
+					<span class="text-sm font-normal text-muted-foreground">
+						{currencyCode}
+					</span>
 				</div>
 			{/if}
 			{#if text}<p class={cn('mt-2 text-sm', textClass)}>{text}</p>{/if}

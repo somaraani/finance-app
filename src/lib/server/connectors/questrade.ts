@@ -33,7 +33,7 @@ export class QuestradeConnector extends Connector {
 				}
 			});
 			const data = await response.json();
-			const balance = data.perCurrencyBalances.find((b: any) => b.currency === 'CAD'); // TODO, multiple currencies
+			const balance = data.combinedBalances.find((b: any) => b.currency === 'CAD'); // TODO, multiple currencies
 			await AccountsService.createAccountBalance(
 				this.userId,
 				account.id,

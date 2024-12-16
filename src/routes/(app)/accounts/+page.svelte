@@ -80,7 +80,7 @@
 							<h1 class="ml-2">{account.name}</h1>
 							<div class="ml-auto flex items-center">
 								<p class="mr-4">
-									{#if account.balance !== null}
+									{#if account.balance.value}
 										{account.balance.value.toLocaleString('en-US', {
 											style: 'currency',
 											currency: account.balance.currency,

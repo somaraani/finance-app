@@ -13,14 +13,16 @@
 	import { formatMoney } from '$lib/util';
 	import { VisAxis, VisCrosshair, VisLine, VisTooltip, VisXYContainer } from '@unovis/svelte';
 
-	type NetworthData = (typeof $req)['data'];
-	type Row = ArrayType<NetworthData>;
+	type NetworthData = NonNullable<(typeof $req)['data']>;
+	type Row = ArrayType<NetworthData['data']>;
 
 	let range: Ranges = 'month';
-	let data: NetworthData = [];
+	let data: NetworthData['data'] = [];
+	let currencyCode: string = '';
 
 	$: req = trpc().assets.getData.createQuery({ range });
-	$: data = $req.data || data;
+	$: data = $req.data?.data || data;
+	$: currencyCode = $req.data?.currency || currencyCode;
 
 	$: current = data?.length ? data[data.length - 1].value : 0;
 	$: delta = data?.length ? data[data.length - 1].value - data[0].value : 0;
@@ -35,6 +37,7 @@
 	title={'Networth'}
 	text={deltaText}
 	textClass={deltaClass}
+	{currencyCode}
 	{current}
 	loading={$req.isLoading}
 >
