@@ -34,7 +34,8 @@ export const accountsRouter = t.router({
 			z.object({
 				name: z.string(),
 				type: z.enum(['checking', 'savings', 'credit']),
-				institutionName: z.string()
+				institutionName: z.string(),
+				currencyCode: z.string()
 			})
 		)
 		.mutation(async ({ ctx, input }) => {
@@ -43,11 +44,15 @@ export const accountsRouter = t.router({
 				userId,
 				input.institutionName
 			);
-			await AccountsService.createAccount(userId, institution.id, input.name, input.type).catch(
-				(err) => {
-					console.log(err);
-				}
-			);
+			await AccountsService.createAccount(
+				userId,
+				institution.id,
+				input.name,
+				input.type,
+				input.currencyCode
+			).catch((err) => {
+				console.log(err);
+			});
 			return { success: true };
 		})
 });

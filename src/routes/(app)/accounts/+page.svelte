@@ -83,13 +83,13 @@
 									{#if account.balance !== null}
 										{account.balance.toLocaleString('en-US', {
 											style: 'currency',
-											currency: 'USD'
+											currency: account.currencyCode
 										})}
 										<span class="ml-1 text-sm text-muted-foreground">{account.currencyCode}</span>
 									{:else}
 										-
 									{/if}
-								</p>
+									</p>
 								<AddBalanceDialog
 									accountName={account.name}
 									onSubmit={(balance, date) => addBalance(account.id, balance, date)}

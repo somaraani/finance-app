@@ -5,19 +5,23 @@
 	import * as Select from '$lib/client/ui/select/index.js';
 	import Spinner from '$lib/client/ui/spinner/spinner.svelte';
 	import { trpc } from '$lib/trpc/client';
+	import { currencies } from '$lib/types/currencies';
+	import type { Selected } from 'bits-ui';
 
 	export let onConnect: () => void;
 
 	let accountName = '';
 	let accountType: any;
 	let institution = '';
+	let currency: Selected<string> = { value: 'USD', label: 'USD' };
 
 	const accountTypes = ['Checking', 'Savings', 'Credit Card'];
 
 	let formValid = false;
 
 	$: {
-		formValid = accountName.trim() !== '' && !!accountType && institution.trim() !== '';
+		formValid =
+			accountName.trim() !== '' && !!accountType && institution.trim() !== '' && !!currency;
 	}
 
 	const mutation = trpc().accounts.createAccount.createMutation();
@@ -26,7 +30,8 @@
 		await $mutation.mutateAsync({
 			name: accountName,
 			type: accountType?.toLowerCase(),
-			institutionName: institution
+			institutionName: institution,
+			currencyCode: currency?.value
 		});
 		onConnect();
 	}
@@ -59,6 +64,19 @@
 		<div class="space-y-2">
 			<Label for="institution">Institution</Label>
 			<Input id="institution" bind:value={institution} placeholder="Enter institution" required />
+		</div>
+		<div class="space-y-2">
+			<Label for="currency">Currency</Label>
+			<Select.Root bind:selected={currency} required>
+				<Select.Trigger>
+					<Select.Value placeholder="Select Currency" />
+				</Select.Trigger>
+				<Select.Content>
+					{#each currencies as currency (currency.code)}
+						<Select.Item value={currency}>{currency.code}</Select.Item>
+					{/each}
+				</Select.Content>
+			</Select.Root>
 		</div>
 	</div>
 	<div class="mt-10 w-full">
