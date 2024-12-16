@@ -13,10 +13,13 @@
 	import type { User } from '$lib/types/users.types';
 	import { trpc } from '$lib/trpc/client';
 	import { invalidate } from '$app/navigation';
+	import * as Select from '$lib/client/ui/select/index.js';
+	import { currencies } from '$lib/types/currencies';
 
 	export let user: User;
 
 	let refreshState: 'idle' | 'loading' | 'success' | 'error' = 'idle';
+	let selectedCurrency = { value: user.currency, label: user.currency }; // Default currency
 
 	async function refreshData() {
 		refreshState = 'loading';
@@ -28,6 +31,12 @@
 		} else {
 			refreshState = 'error';
 		}
+	}
+
+	async function handleCurrencyChange(currency) {
+		selectedCurrency = currency;
+		// Save the selected currency to the user's preferences
+		await trpc().createUtils().client.users.setUserCurrency.mutate({ currency: currency.value });
 	}
 </script>
 
@@ -69,6 +78,17 @@
 				Error refreshing
 			{/if}
 		</Button>
+
+		<Select.Root selected={selectedCurrency} on:change={handleCurrencyChange} required>
+			<Select.Trigger>
+				<Select.Value />
+			</Select.Trigger>
+			<Select.Content>
+				{#each currencies as currency}
+					<Select.Item value={currency.code}>{currency.code}</Select.Item>
+				{/each}
+			</Select.Content>
+		</Select.Root>
 
 		<DropdownMenu.Root>
 			<DropdownMenu.Trigger asChild let:builder>

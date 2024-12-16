@@ -9,6 +9,7 @@
 	import Button from '$lib/client/ui/button/button.svelte';
 	import { invalidate } from '$app/navigation';
 	import { toast } from 'svelte-sonner';
+
 	let selectedConnector:
 		| { title: any; component: any; description?: string; icon?: typeof ManualIcon }
 		| undefined = undefined;
