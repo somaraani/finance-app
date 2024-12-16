@@ -80,12 +80,24 @@
 							<h1 class="ml-2">{account.name}</h1>
 							<div class="ml-auto flex items-center">
 								<p class="mr-4">
-									{#if account.balance !== null}
-										{account.balance.toLocaleString('en-US', {
+									{#if account.balance.value}
+										{account.balance.value.toLocaleString('en-US', {
 											style: 'currency',
-											currency: account.currencyCode
+											currency: account.balance.currency,
+											currencyDisplay: 'narrowSymbol'
 										})}
-										<span class="ml-1 text-sm text-muted-foreground">{account.currencyCode}</span>
+										<span class="text-xs text-muted-foreground">{account.balance.currency}</span>
+
+										{#if account.balance.currency !== account.convertedBalance.currency}
+											= {account.convertedBalance.value.toLocaleString('en-US', {
+												style: 'currency',
+												currency: account.convertedBalance.currency,
+												currencyDisplay: 'narrowSymbol'
+											})}
+											<span class="text-xs text-muted-foreground"
+												>{account.convertedBalance.currency}</span
+											>
+										{/if}
 									{:else}
 										-
 									{/if}

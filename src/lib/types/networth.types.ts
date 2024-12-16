@@ -1,11 +1,15 @@
 import type { AccountMedata } from '.';
 
 export type NetworthData = {
-	date: Date;
-	value: number;
-}[];
+	currency: string;
+	data: {
+		date: Date;
+		value: number;
+	}[];
+};
 
 export type AccountHistory = {
+	currency: string;
 	accounts: AccountMedata[];
 	history: {
 		date: Date;

@@ -4,6 +4,8 @@ import { and, desc, eq, getTableColumns, lte } from 'drizzle-orm';
 import { accounts, balances, userInstitutions } from '../../../schemas/schema';
 import { db } from '../util/db';
 import { ConnectorsService } from './connectors';
+import { ExchangeService } from './exchange';
+import { UsersService } from './users';
 
 export class AccountsService {
 	static async createAccount(
@@ -194,6 +196,8 @@ export class AccountsService {
 	 * Use {@link syncAccountBalances} to update balances
 	 */
 	static async getUserAccountBalances(userId: number): Promise<AccountBalance[]> {
+		const userCurrency = await UsersService.getUserCurrency(userId);
+
 		const result = await db
 			.selectDistinctOn([accounts.id], {
 				name: accounts.name,
@@ -211,7 +215,23 @@ export class AccountsService {
 			.innerJoin(userInstitutions, eq(userInstitutions.id, accounts.institutionId))
 			.orderBy(accounts.id, desc(balances.timestamp));
 
-		return result as AccountBalance[];
+		const accountBalances = await Promise.all(
+			result.map(async (account) => {
+				const convertedBalance =
+					account.balance && account.currencyCode !== userCurrency
+						? account.balance *
+							(await ExchangeService.getExchangeRate(account.currencyCode, userCurrency!))
+						: account.balance;
+
+				return {
+					...account,
+					balance: { value: account.balance, currency: account.currencyCode },
+					convertedBalance: { value: convertedBalance, currency: userCurrency }
+				};
+			})
+		);
+
+		return accountBalances as AccountBalance[];
 	}
 
 	/**
@@ -262,9 +282,9 @@ export class AccountsService {
 	}
 
 	/**
-	 * Creates an account balance for the specified account ID with the given balance.
+	 * Deletes an account for the specified user ID and account ID.
+	 * @param userId - The ID of the user.
 	 * @param accountId - The ID of the account.
-	 * @param balance - The balance to set for the account.
 	 */
 	static async deleteAccount(userId: number, accountId: number) {
 		const deleted = await db

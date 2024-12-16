@@ -26,7 +26,29 @@
 					</div>
 				</div>
 				<div class="ml-auto text-right">
-					<p>{account.balance ? `${formatMoney(account.balance)} ${account.currencyCode}` : '-'}</p>
+					<p>
+						{#if account.balance !== null}
+							{account.balance.value.toLocaleString('en-US', {
+								style: 'currency',
+								currency: account.balance.currency,
+								currencyDisplay: 'narrowSymbol'
+							})}
+							<span class="text-xs text-muted-foreground">{account.balance.currency}</span>
+
+							{#if account.balance.currency !== account.convertedBalance.currency}
+								= {account.convertedBalance.value.toLocaleString('en-US', {
+									style: 'currency',
+									currency: account.convertedBalance.currency,
+									currencyDisplay: 'narrowSymbol'
+								})}
+								<span class="text-xs text-muted-foreground"
+									>{account.convertedBalance.currency}</span
+								>
+							{/if}
+						{:else}
+							-
+						{/if}
+					</p>
 					<p class="text-xs text-muted-foreground">
 						Updated {getRelativeTime(account.lastUpdated)}
 					</p>
