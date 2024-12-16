@@ -5,18 +5,15 @@
 	import { Input } from '$lib/client/ui/input/index.js';
 	import { Label } from '$lib/client/ui/label/index.js';
 	import PlusIcon from 'lucide-svelte/icons/list-plus';
-	import * as Select from '$lib/client/ui/select/index.js';
-	import { currencies } from '$lib/types/currencies';
 
 	export let accountName: string;
-	export let onSubmit: (balance: number, date: Date, currencyCode: string) => void;
+	export let onSubmit: (balance: number, date: Date) => void;
 
 	let loading = false;
 	let dialogOpen = false;
 
 	let balance = '0';
 	let date = new Date().toISOString().split('T')[0]; // Default to today's date
-	let selectedCurrency = { value: 'USD', label: 'US Dollar' }; // Default currency
 
 	async function handleSubmit() {
 		loading = true;
@@ -30,7 +27,7 @@
 			now.getMilliseconds()
 		);
 		const parsedBalance = parseFloat(balance.replace(',', '').trim());
-		await onSubmit(parsedBalance, selectedDate, selectedCurrency.value);
+		await onSubmit(parsedBalance, selectedDate);
 		loading = false;
 		dialogOpen = false;
 	}
@@ -60,19 +57,6 @@
 					required
 					on:keypress={handleKeyPress}
 				/>
-			</div>
-			<div class="flex flex-col space-y-1.5">
-				<Label for="currencyCode">Currency Code</Label>
-				<Select.Root selected={selectedCurrency} required>
-					<Select.Trigger>
-						<Select.Value />
-					</Select.Trigger>
-					<Select.Content>
-						{#each currencies as currency}
-							<Select.Item value={currency.code}>{currency.name}</Select.Item>
-						{/each}
-					</Select.Content>
-				</Select.Root>
 			</div>
 			<div class="flex flex-col space-y-1.5">
 				<Label for="date">Transaction Date</Label>
