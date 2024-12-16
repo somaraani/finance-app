@@ -8,7 +8,8 @@ export type AccountMedata = {
 };
 
 export type AccountBalance = AccountMedata & {
-	balance: number | null;
+	balance: { value: number; currency: string };
+	convertedBalance: { value: number; currency: string };
 	lastUpdated: Date | null;
 };
 
