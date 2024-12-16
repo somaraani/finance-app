@@ -1,6 +1,5 @@
 import { userInstitutions } from '../../../schemas/schema';
 import { AccountsService } from '../services/accounts';
-import { db } from '../util/db';
 import { Connector } from './abstract';
 
 export class QuestradeConnector extends Connector {
@@ -82,9 +81,16 @@ export class QuestradeConnector extends Connector {
 		// get accounts
 		const accounts = await this.getAccounts();
 		for (const account of accounts) {
-			await AccountsService.createAccount(this.userId, institution.id, account.type, 'investment', {
-				accountNumber: account.number
-			});
+			await AccountsService.createAccount(
+				this.userId,
+				institution.id,
+				account.type,
+				'investment',
+				'CAD',
+				{
+					accountNumber: account.number
+				}
+			);
 		}
 	}
 
