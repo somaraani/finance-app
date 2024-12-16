@@ -18,7 +18,8 @@ export const users = schema.table('users', {
 	username: text('username').notNull().unique(),
 	firstname: text('firstName').notNull(),
 	lastname: text('lastName').notNull(),
-	password: text('password').notNull()
+	password: text('password').notNull(),
+	currency: text('currency').notNull().default('CAD')
 });
 
 export const sessions = schema.table('sessions', {
@@ -76,7 +77,7 @@ export const balances = schema.table('balances', {
 			onDelete: 'cascade'
 		}),
 	balance: doublePrecision('balance').notNull(),
-	currencyCode: text('currency_code').notNull(),
+	currencyCode: text('currency_code').notNull().default('CAD'),
 	timestamp: timestamp('timestamp', { withTimezone: true, mode: 'date' }).notNull()
 });
 

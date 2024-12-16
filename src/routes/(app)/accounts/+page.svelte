@@ -80,10 +80,15 @@
 							<h1 class="ml-2">{account.name}</h1>
 							<div class="ml-auto flex items-center">
 								<p class="mr-4">
-									{account.balance?.toLocaleString('en-US', {
-										style: 'currency',
-										currency: 'USD'
-									}) ?? '-'}
+									{#if account.balance !== null}
+										{account.balance.toLocaleString('en-US', {
+											style: 'currency',
+											currency: 'USD'
+										})}
+										<span class="ml-1 text-sm text-muted-foreground">{account.currencyCode}</span>
+									{:else}
+										-
+									{/if}
 								</p>
 								<AddBalanceDialog
 									accountName={account.name}

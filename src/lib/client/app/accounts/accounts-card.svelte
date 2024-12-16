@@ -26,7 +26,7 @@
 					</div>
 				</div>
 				<div class="ml-auto text-right">
-					<p>{account.balance ? formatMoney(account.balance) : '-'}</p>
+					<p>{account.balance ? `${formatMoney(account.balance)} ${account.currencyCode}` : '-'}</p>
 					<p class="text-xs text-muted-foreground">
 						Updated {getRelativeTime(account.lastUpdated)}
 					</p>

@@ -200,12 +200,13 @@ export class AccountsService {
 				lastUpdated: balances.timestamp,
 				type: accounts.type,
 				institutionName: userInstitutions.name,
-				institutionId: userInstitutions.id
+				institutionId: userInstitutions.id,
+				currencyCode: balances.currencyCode
 			})
 			.from(accounts)
 			.where(eq(accounts.userId, userId))
 			.leftJoin(balances, eq(balances.accountId, accounts.id))
-			.innerJoin(userInstitutions, eq(userInstitutions.id, accounts.institutionId))
+				.innerJoin(userInstitutions, eq(userInstitutions.id, accounts.institutionId))
 			.orderBy(accounts.id, desc(balances.timestamp));
 
 		return result as AccountBalance[];
@@ -220,7 +221,8 @@ export class AccountsService {
 		userId: number,
 		accountId: number,
 		balance: number,
-		date: Date
+		date: Date,
+		currencyCode: string
 	) {
 		const inserted = await db
 			.insert(balances)
@@ -228,7 +230,7 @@ export class AccountsService {
 				userId,
 				accountId,
 				balance,
-				currencyCode: 'CAD', // TODO set a correct currency code
+				currencyCode,
 				timestamp: date
 			})
 			.returning();
@@ -243,16 +245,16 @@ export class AccountsService {
 	static async createAccountBalances(
 		userId: number,
 		accountId: number,
-		data: { balance: number; date: Date }[]
+		data: { balance: number; date: Date; currencyCode: string }[]
 	) {
 		const inserted = await db
 			.insert(balances)
 			.values(
-				data.map(({ balance, date }) => ({
+				data.map(({ balance, date, currencyCode }) => ({
 					userId,
 					accountId,
 					balance,
-					currencyCode: 'CAD', // TODO set a correct currency code
+					currencyCode,
 					timestamp: date
 				}))
 			)

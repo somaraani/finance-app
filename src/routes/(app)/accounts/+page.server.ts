@@ -34,12 +34,13 @@ export const actions: Actions = {
 		return result;
 	},
 	addBalance: async (event) => {
-		const { accountId, balance, date } = await event.request.json();
+		const { accountId, balance, date, currencyCode } = await event.request.json();
 		const result = await AccountsService.createAccountBalance(
 			event.locals.user.id,
 			accountId,
 			balance,
-			new Date(date)
+			new Date(date),
+			currencyCode
 		).catch((e) => {
 			console.error(e);
 			return { success: false, error: e.message };

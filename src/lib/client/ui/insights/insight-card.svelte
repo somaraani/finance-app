@@ -8,6 +8,7 @@
 	export let text: string | undefined = undefined;
 	export let textClass: string | undefined = undefined;
 	export let loading = false;
+	export let currencyCode: string | undefined = 'USD';
 </script>
 
 <Card.Root class="h-full">
@@ -19,7 +20,11 @@
 		{#if loading}
 			<div>Loading...</div>
 		{:else}
-			{#if current !== undefined}<div class="text-2xl font-bold">{formatMoney(current)}</div>{/if}
+			{#if current !== undefined}
+				<div class="text-2xl font-bold">
+					{formatMoney(current)} {currencyCode}
+				</div>
+			{/if}
 			{#if text}<p class={cn('mt-2 text-sm', textClass)}>{text}</p>{/if}
 			<div class="insight">
 				<slot />
