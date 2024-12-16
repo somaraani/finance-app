@@ -11,6 +11,7 @@ export class AccountsService {
 		institutionId: number,
 		accountName: string,
 		accountType: AccountType,
+		currencyCode: string,
 		connectorMetadata?: any
 	): Promise<AccountMedata> {
 		// Check if user institution exists
@@ -31,6 +32,7 @@ export class AccountsService {
 				institutionId,
 				name: accountName,
 				type: accountType,
+				currencyCode,
 				connectorMetadata: JSON.stringify(connectorMetadata || '{}')
 			})
 			.returning();
@@ -201,12 +203,12 @@ export class AccountsService {
 				type: accounts.type,
 				institutionName: userInstitutions.name,
 				institutionId: userInstitutions.id,
-				currencyCode: balances.currencyCode
+				currencyCode: accounts.currencyCode
 			})
 			.from(accounts)
 			.where(eq(accounts.userId, userId))
 			.leftJoin(balances, eq(balances.accountId, accounts.id))
-				.innerJoin(userInstitutions, eq(userInstitutions.id, accounts.institutionId))
+			.innerJoin(userInstitutions, eq(userInstitutions.id, accounts.institutionId))
 			.orderBy(accounts.id, desc(balances.timestamp));
 
 		return result as AccountBalance[];
@@ -221,8 +223,7 @@ export class AccountsService {
 		userId: number,
 		accountId: number,
 		balance: number,
-		date: Date,
-		currencyCode: string
+		date: Date
 	) {
 		const inserted = await db
 			.insert(balances)
@@ -230,7 +231,6 @@ export class AccountsService {
 				userId,
 				accountId,
 				balance,
-				currencyCode,
 				timestamp: date
 			})
 			.returning();
@@ -245,16 +245,15 @@ export class AccountsService {
 	static async createAccountBalances(
 		userId: number,
 		accountId: number,
-		data: { balance: number; date: Date; currencyCode: string }[]
+		data: { balance: number; date: Date }[]
 	) {
 		const inserted = await db
 			.insert(balances)
 			.values(
-				data.map(({ balance, date, currencyCode }) => ({
+				data.map(({ balance, date }) => ({
 					userId,
 					accountId,
 					balance,
-					currencyCode,
 					timestamp: date
 				}))
 			)

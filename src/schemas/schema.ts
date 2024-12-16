@@ -61,7 +61,8 @@ export const accounts = schema.table('accounts', {
 		}),
 	name: text('name').notNull(),
 	connectorMetadata: text('connector_metadata'),
-	type: text('type').notNull()
+	type: text('type').notNull(),
+	currencyCode: text('currency_code').notNull().default('CAD')
 });
 
 export const balances = schema.table('balances', {
@@ -77,7 +78,6 @@ export const balances = schema.table('balances', {
 			onDelete: 'cascade'
 		}),
 	balance: doublePrecision('balance').notNull(),
-	currencyCode: text('currency_code').notNull().default('CAD'),
 	timestamp: timestamp('timestamp', { withTimezone: true, mode: 'date' }).notNull()
 });
 
